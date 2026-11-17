@@ -178,7 +178,7 @@ h1{font:700 22px/1.1 var(--f-display);margin:0;letter-spacing:-.01em}
 .vchk[aria-checked="true"] .box{background:var(--accent);border-color:var(--accent)}
 .vchk[aria-checked="false"]{opacity:.6}
 .dcols{display:flex;gap:10px;overflow-x:auto;padding-bottom:14px;align-items:flex-start;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-gutter:stable}
-.dcol{flex:1 0 300px;min-width:280px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:6px}
+.dcol{flex:0 0 320px;min-width:300px;max-height:calc(100vh - 170px);overflow-y:auto;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
 .dcol.hoy{background:var(--today)}
 .dcol.centro{box-shadow:inset 0 0 0 2px var(--accent)}
 .dcol h3{margin:0 0 2px;font:700 15px/1.2 var(--f-display);display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
@@ -571,8 +571,18 @@ function tarjetaTablero(t,c,n,diaCol){
 }
 function centroTab(){return tabCentro||hoyVE();}
 function lunesDe(k){var d=diaSemana(k);return sumarDias(k,d===0?-6:1-d);}
+function centrarColumnaEn(contSel,dia,suave){
+  requestAnimationFrame(function(){
+    var cont=document.querySelector(contSel); if(!cont) return;
+    var col=cont.querySelector('[data-drop-dia="'+dia+'"]'); if(!col) return;
+    var left=col.offsetLeft - Math.max(0,(cont.clientWidth - col.offsetWidth)/2);
+    if(suave&&cont.scrollTo) cont.scrollTo({left:Math.max(0,left),behavior:"smooth"});
+    else cont.scrollLeft=Math.max(0,left);
+  });
+}
 function pintarTablero(){
   var el=document.getElementById("tablero"); if(!el) return;
+  var prevTab=el.querySelector(".tablero"), prevLeft=prevTab?prevTab.scrollLeft:null;
   var ct=centroTab(), lun=lunesDe(ct), diasSem=[];
   for(var i=0;i<7;i++) diasSem.push(sumarDias(lun,i));
   var conteoDia={};
@@ -599,7 +609,7 @@ function pintarTablero(){
   h+='</div></div><div class="tablero">';
   var hay=false;
   if(tabAgrupar==="dia"){
-    diasSem.forEach(function(k){
+    for(var kd=desde;kd<=hasta;kd=sumarDias(kd,1)){
       var ts=[];
       TAREAS.forEach(function(t){
         if(!t.dia) return;
@@ -608,24 +618,24 @@ function pintarTablero(){
         if(estadoVer==="pendientes"&&t.listo) return;
         if(estadoVer==="listas"&&!t.listo) return;
         var fin=t.diaFin||t.dia;
-        if(k>=t.dia&&k<=fin) ts.push(t);
+        if(kd>=t.dia&&kd<=fin) ts.push(t);
       });
       hay=true;
       ts.sort(ordenar);
-      var pend=ts.filter(function(t){return !t.listo;}).length, n=0, sep=false, esHoy=k===hoyVE();
+      var pend=ts.filter(function(t){return !t.listo;}).length, n=0, sep=false, esHoy=kd===hoyVE();
       var colColor=esHoy?"var(--accent)":"var(--a-equipo)";
-      h+='<section class="col'+(esHoy?" hoy-col":"")+'" data-drop-dia="'+k+'" style="--k:'+colColor+'" aria-label="'+esc(fechaLarga(k))+'"><h3>'+esc(nombreCorto(k)+" · "+DIAS[diaSemana(k)]+" "+(+k.slice(8)))+'<small>'+(ts.length?(pend?pend+" por hacer":"todo listo"):"sin tareas")+'</small></h3>';
+      h+='<section class="col'+(esHoy?" hoy-col":"")+'" data-drop-dia="'+kd+'" style="--k:'+colColor+'" aria-label="'+esc(fechaLarga(kd))+'"><h3>'+esc(nombreCorto(kd)+" · "+DIAS[diaSemana(kd)]+" "+(+kd.slice(8))+" "+MESES[+kd.slice(5,7)-1].slice(0,3))+'<small>'+(ts.length?(pend?pend+" por hacer":"todo listo"):"sin tareas")+'</small></h3>';
       if(!ts.length){
         h+='<p class="vacio">Arrastra tareas aquí para moverlas a este día.</p>';
       } else {
         ts.forEach(function(t){
           if(t.listo&&!sep&&pend&&estadoVer==="todas"){sep=true;h+='<p class="sep-listas">Listas</p>';}
           if(!t.listo) n++;
-          h+=tarjetaTablero(t,colDe(t),n,k);
+          h+=tarjetaTablero(t,colDe(t),n,kd);
         });
       }
       h+='</section>';
-    });
+    }
   } else {
     var grupos={};
     TAREAS.forEach(function(t){
@@ -655,8 +665,10 @@ function pintarTablero(){
   }
   h+=(hay?'':'<p class="vacio">Nada con estos filtros.</p>')+'</div>';
   el.innerHTML=h;
+  var nuevoTab=el.querySelector(".tablero");
+  if(nuevoTab&&prevLeft!==null) nuevoTab.scrollLeft=prevLeft;
 }
-/* ---------- vista Día: checklist de ayer, hoy y mañana (o semana completa), por prioridad y luego por hora ---------- */
+/* ---------- vista Día: todos los días en fila con scroll horizontal continuo, centrados en Hoy ---------- */
 function centroDia(){return centro||hoyVE();}
 function nombreCorto(k){var h=hoyVE();if(k===h)return "Hoy";if(k===sumarDias(h,-1))return "Ayer";if(k===sumarDias(h,1))return "Mañana";return DIAS[diaSemana(k)]+" "+(+k.slice(8));}
 function filaDia(t,k){
@@ -669,30 +681,29 @@ function filaDia(t,k){
     '<span class="q" style="--pc:var(--c-'+(t.quien==="Nakari"?"nakari":"carlos")+')">'+(t.quien==="Nakari"?"Nakari":"Carlos")+'</span>'+(t.tiempo?'<span>⏱ '+esc(String(t.tiempo).replace(/<[^>]*>/g,""))+'</span>':'')+'</span>'+
     '<span class="dn">'+esc(t.tarea)+'</span></button></div>';
 }
+var diaScrollIniciado=false;
 function pintarDias(){
   var el=document.getElementById("diavista"); if(!el) return;
+  var prevDcols=el.querySelector(".dcols"), prevLeft=prevDcols?prevDcols.scrollLeft:null;
   var c0=centroDia(), mapa=porDia();
-  var dias=[["ayer",sumarDias(c0,-1)],["hoy",c0],["man",sumarDias(c0,1)]];
-  var h='<div class="dv-top"><div class="seg" role="group" aria-label="Mover los días"><button data-correr="-1" aria-label="Un día antes">‹</button><button data-correr="1" aria-label="Un día después">›</button></div>';
-  dias.forEach(function(d){h+='<button class="vchk" role="checkbox" aria-checked="'+(!diasVer.semana&&!!diasVer[d[0]])+'" data-ver="'+d[0]+'" data-drop-dia="'+d[1]+'"><span class="box">'+(!diasVer.semana&&diasVer[d[0]]?"✓":"")+'</span>'+nombreCorto(d[1])+' · '+fechaLarga(d[1]).replace(/^(\S+) (\d+) de (\S+)$/,function(m,a,b,c){return a.slice(0,3)+" "+b+" "+c.slice(0,3);})+'</button>';});
-  h+='<button class="vchk" role="checkbox" aria-checked="'+!!diasVer.semana+'" data-ver-semana="1"><span class="box">'+(diasVer.semana?"✓":"")+'</span>↔ Semana (7 días)</button>';
-  h+='<p class="ayuda">Arrastra cualquier actividad de una columna a otra (ej. del martes al miércoles) o dentro del mismo día. Usa la rueda horizontal del ratón para mover las columnas.</p></div>';
-  var cols=[];
-  if(diasVer.semana){
-    var lun=lunesDe(c0);
-    for(var i=0;i<7;i++){var kd=sumarDias(lun,i); cols.push([kd===c0?"hoy":"sem",kd]);}
-  } else {
-    cols=dias.filter(function(d){return diasVer[d[0]];});
-  }
-  if(!cols.length){el.innerHTML=h+'<p class="vacio">Marca al menos un día para ver sus tareas.</p>';return;}
-  h+='<div class="dcols" style="--n:'+cols.length+'">';
-  cols.forEach(function(d){
-    var k=d[1], ts=mapa[k]||[], pend=ts.filter(function(t){return !t.listo;}).length;
-    h+='<section class="dcol'+(k===hoyVE()?" hoy":"")+(d[0]==="hoy"&&cols.length>1?" centro":"")+'" data-drop-dia="'+k+'" aria-label="'+esc(fechaLarga(k))+'"><h3>'+fechaLarga(k).replace(/^./,function(c){return c.toUpperCase();})+'<small>'+(ts.length?(pend?pend+" por hacer":"todo listo")+" · "+ts.length:"")+'</small></h3>'+
+  var diasRapidos=[["ayer",sumarDias(hoyVE(),-1)],["hoy",hoyVE()],["man",sumarDias(hoyVE(),1)]];
+  var h='<div class="dv-top"><div class="seg" role="group" aria-label="Mover los días"><button data-correr="-3" aria-label="Tres días antes" title=" desplazar a la izquierda">‹</button><button data-correr="3" aria-label="Tres días después" title="Desplazar a la derecha">›</button></div>';
+  diasRapidos.forEach(function(d){h+='<button class="vchk" data-ir-dia="'+d[1]+'" data-drop-dia="'+d[1]+'">'+nombreCorto(d[1])+' · '+fechaLarga(d[1]).replace(/^(\S+) (\d+) de (\S+)$/,function(m,a,b,c){return a.slice(0,3)+" "+b+" "+c.slice(0,3);})+'</button>';});
+  h+='<p class="ayuda">Usa la rueda horizontal del ratón (o desliza) para recorrer todos los días libremente, y arrastra actividades de un día a otro.</p></div>';
+  h+='<div class="dcols">';
+  for(var k=desde;k<=hasta;k=sumarDias(k,1)){
+    var ts=mapa[k]||[], pend=ts.filter(function(t){return !t.listo;}).length, esHoy=k===hoyVE(), esCentro=k===c0;
+    var etiq=esHoy?"Hoy · ":k===sumarDias(hoyVE(),-1)?"Ayer · ":k===sumarDias(hoyVE(),1)?"Mañana · ":"";
+    h+='<section class="dcol'+(esHoy?" hoy":"")+(esCentro?" centro":"")+'" data-drop-dia="'+k+'" aria-label="'+esc(fechaLarga(k))+'"><h3>'+esc(etiq)+fechaLarga(k).replace(/^./,function(c){return c.toUpperCase();})+'<small>'+(ts.length?(pend?pend+" por hacer":"todo listo")+" · "+ts.length:"sin tareas")+'</small></h3>'+
       (ts.length?ts.map(function(t){return filaDia(t,k);}).join(""):'<p class="vacio">Nada este día con estos filtros (arrastra aquí para mover).</p>')+
       '</section>';
-  });
+  }
   el.innerHTML=h+'</div>';
+  var nuevoDcols=el.querySelector(".dcols");
+  if(nuevoDcols){
+    if(prevLeft!==null&&diaScrollIniciado) nuevoDcols.scrollLeft=prevLeft;
+    else if(vistaModo==="dia"){diaScrollIniciado=true;centrarColumnaEn("#diavista .dcols",c0,false);}
+  }
 }
 function pintarModo(){
   var tab=vistaModo==="tablero", cal=vistaModo==="calendario", m=document.getElementById("marco"), tb=document.getElementById("tablero"), pr=document.getElementById("prios"), dv=document.getElementById("diavista");
@@ -854,18 +865,17 @@ document.addEventListener("click",function(ev){
   var d=t.dataset;
   if(t.id==="menos"){cambiarZoom(-0.1);return;}
   if(t.id==="mas"){cambiarZoom(0.1);return;}
-  if(t.id==="hoy"){if(vistaModo==="dia"){centro=null;panel=null;pintar();window.scrollTo(0,0);return;}if(vistaModo==="tablero"){tabCentro=null;if(tabAgrupar==="cat"&&tabDia)tabDia=hoyVE();guardarFiltros();pintar();return;}irAHoy(true);return;}
-  if(d.modo){vistaModo=d.modo;guardarFiltros();pintar();if(vistaModo==="calendario")aplicarZoom();window.scrollTo(0,0);return;}
+  if(t.id==="hoy"){if(vistaModo==="dia"){centro=null;panel=null;pintar();centrarColumnaEn("#diavista .dcols",hoyVE(),true);return;}if(vistaModo==="tablero"){tabCentro=null;if(tabAgrupar==="cat"&&tabDia)tabDia=hoyVE();guardarFiltros();pintar();if(tabAgrupar==="dia")centrarColumnaEn("#tablero .tablero",hoyVE(),true);return;}irAHoy(true);return;}
+  if(d.modo){vistaModo=d.modo;guardarFiltros();pintar();if(vistaModo==="calendario")aplicarZoom();if(vistaModo==="dia")centrarColumnaEn("#diavista .dcols",centroDia(),false);if(vistaModo==="tablero"&&tabAgrupar==="dia")centrarColumnaEn("#tablero .tablero",centroTab(),false);window.scrollTo(0,0);return;}
   if(d.estado){estadoVer=d.estado;guardarFiltros();pintar();return;}
-  if(d.tabAgrupar){tabAgrupar=d.tabAgrupar;guardarFiltros();pintar();return;}
-  if(d.tabCorrer){tabCentro=sumarDias(centroTab(),+d.tabCorrer);pintar();return;}
-  if(d.tabDia!==undefined){if(tabAgrupar==="cat"){tabDia=tabDia===d.tabDia?"":d.tabDia;guardarFiltros();pintar();}return;}
+  if(d.tabAgrupar){tabAgrupar=d.tabAgrupar;guardarFiltros();pintar();if(tabAgrupar==="dia")centrarColumnaEn("#tablero .tablero",centroTab(),false);return;}
+  if(d.tabCorrer){tabCentro=sumarDias(centroTab(),+d.tabCorrer);pintar();if(tabAgrupar==="dia")centrarColumnaEn("#tablero .tablero",tabCentro,true);return;}
+  if(d.tabDia!==undefined){if(tabAgrupar==="cat"){tabDia=tabDia===d.tabDia?"":d.tabDia;guardarFiltros();pintar();}else if(d.tabDia){tabCentro=d.tabDia;pintar();centrarColumnaEn("#tablero .tablero",d.tabDia,true);}return;}
   if(d.check){var tc=buscar(d.check);if(!tc||!puedeEditar())return;tc.listo=!tc.listo;guardar();pintar();toast(tc.listo?"Lista ✓":"Vuelve a por hacer.",function(){tc.listo=!tc.listo;guardar();pintar();});return;}
   if(t.id==="ver-sugs"){aviso=null;panel={tipo:"sugs"};pintar();return;}
   if(t.id==="abrir-dictado"){aviso=null;panel={tipo:"dictado"};pintar();var ta=document.getElementById("dictado");if(ta)ta.focus();return;}
-  if(d.verSemana){diasVer.semana=!diasVer.semana;guardarFiltros();pintar();return;}
-  if(d.ver){diasVer.semana=false;diasVer[d.ver]=!diasVer[d.ver];guardarFiltros();pintar();return;}
-  if(d.correr){centro=sumarDias(centroDia(),+d.correr);if(panel&&panel.tipo==="tarea")panel=null;pintar();return;}
+  if(d.irDia){centro=d.irDia;pintar();centrarColumnaEn("#diavista .dcols",d.irDia,true);return;}
+  if(d.correr){var dc=document.querySelector("#diavista .dcols");if(dc&&dc.scrollBy){dc.scrollBy({left:+d.correr*330,behavior:"smooth"});}else{centro=sumarDias(centroDia(),+d.correr);pintar();centrarColumnaEn("#diavista .dcols",centro,true);}return;}
   if(d.persona){persona=d.persona;guardarFiltros();pintar();return;}
   if(d.area){tocarArea(d.area);return;}
   if(t.hasAttribute("data-listas")){listasModo={ambas:"ocultar",ocultar:"solo",solo:"ambas"}[listasModo];guardarFiltros();pintar();toast({ambas:"Se ven todas: pendientes y listas.",ocultar:"Listas ocultas.",solo:"Solo las listas."}[listasModo]);return;}
