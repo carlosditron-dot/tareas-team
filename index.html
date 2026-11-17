@@ -1,0 +1,1098 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Tareas del Team</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Tareas Team">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=JetBrains+Mono:wght@500&display=swap">
+<style id="css">
+/* Layout: calendario continuo y denso para iPad; arriba filtros y prioridades del día; panel fijo a la derecha para la tarea, el dictado y las sugerencias. En pantallas angostas pasa a agenda por día. */
+:root{
+  --bg:#F6F7F2; --card:#FFFFFF; --ink:#18221D; --muted:#5E6B64; --line:#DCE2DA; --soft:#EEF1EA; --accent:#0E6B57; --accentInk:#FFFFFF; --today:#FFF3B0; --danger:#B4382B;
+  --a-founders:#B7790B; --a-adsf:#0A8FA8; --a-anuncios:#2F55C8; --a-grupos:#1D8A4A; --a-contenido:#8146B0; --a-skool:#0A7B6C; --a-clase:#D1531F; --a-carrito:#C0322E; --a-season:#C2357E; --a-reto:#9A7A00; --a-equipo:#4C6A87; --a-agenda:#7D8780; --a-l2:#5A6470;
+  --c-carlos:#0E6B57; --c-nakari:#C2357E; --p1:#D7263D; --p2:#E8790C; --p3:#C9A100;
+  --f-display:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --f-body:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#101613; --card:#18201C; --ink:#E6EEE8; --muted:#9AAAA1; --line:#2A3630; --soft:#1E2823; --accent:#4FCBA6; --accentInk:#06231D; --today:#3A3416; --danger:#F08B78;
+  --a-founders:#E3AC3C; --a-adsf:#4FD1E6; --a-anuncios:#86A0F5; --a-grupos:#5FCB8C; --a-contenido:#C39BE6; --a-skool:#4FCBB8; --a-clase:#F29A6B; --a-carrito:#F08B78; --a-season:#EE8BC0; --a-reto:#E0C24A; --a-equipo:#94B2CF; --a-agenda:#A3ADA7; --a-l2:#A4AEBA;
+  --c-carlos:#4FCBA6; --c-nakari:#EE8BC0; --p1:#FF6B7D; --p2:#FFA552; --p3:#F0CF4A; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101613; --card:#18201C; --ink:#E6EEE8; --muted:#9AAAA1; --line:#2A3630; --soft:#1E2823; --accent:#4FCBA6; --accentInk:#06231D; --today:#3A3416; --danger:#F08B78;
+  --a-founders:#E3AC3C; --a-adsf:#4FD1E6; --a-anuncios:#86A0F5; --a-grupos:#5FCB8C; --a-contenido:#C39BE6; --a-skool:#4FCBB8; --a-clase:#F29A6B; --a-carrito:#F08B78; --a-season:#EE8BC0; --a-reto:#E0C24A; --a-equipo:#94B2CF; --a-agenda:#A3ADA7; --a-l2:#A4AEBA;
+  --c-carlos:#4FCBA6; --c-nakari:#EE8BC0; --p1:#FF6B7D; --p2:#FFA552; --p3:#F0CF4A; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:400 13px/1.35 var(--f-body)}
+button,input,select,textarea{font:inherit;color:inherit}
+button{touch-action:manipulation}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1500px;margin:0 auto;padding-block:12px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body.con-panel .wrap{padding-right:362px}
+.top{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between;margin-bottom:8px}
+h1{font:700 22px/1.1 var(--f-display);margin:0;letter-spacing:-.01em}
+.mes{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:5px 10px;cursor:pointer;font-size:12.5px}
+.btn.solid{background:var(--accent);border-color:var(--accent);color:var(--accentInk);font-weight:700}
+.btn.peligro{border-color:var(--danger);color:var(--danger)}
+.btn.peligro.solid{background:var(--danger);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+.estado{font-size:11.5px;color:var(--muted)}
+.estado.err{color:var(--danger)}
+.filtros{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin:6px 0 8px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--card)}
+.seg button{border:0;background:transparent;padding:4px 10px;cursor:pointer;font-size:12px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
+.chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);background:var(--card);border-radius:99px;padding:3px 9px 3px 7px;cursor:pointer;font-size:11.5px;-webkit-user-select:none;user-select:none}
+.chip i{width:9px;height:9px;border-radius:3px;background:var(--c)}
+.chip[aria-pressed="false"]{opacity:.38}
+.sep{width:1px;height:18px;background:var(--line);margin:0 3px}
+.ayuda{font-size:11.5px;color:var(--muted);margin:0}
+.prios{display:grid;grid-template-columns:auto 1fr 1fr;gap:6px 12px;align-items:start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:10px}
+.prios-t{font:700 13px/1.2 var(--f-display);grid-row:span 2}
+.prios-t small{display:block;font:400 11px/1.3 var(--f-body);color:var(--muted);margin-top:2px}
+.pcol{display:grid;gap:3px;min-width:0}
+.pcol>b{font-size:11.5px;color:var(--muted)}
+.pslot{display:flex;gap:6px;align-items:center;min-width:0}
+.pslot .t{flex:1}
+.pslot .vacio{font-size:11.5px;color:var(--muted)}
+.pb{flex:none;font:700 10px/1 var(--f-mono);color:#fff;border-radius:4px;padding:3px 4px;background:var(--pcol)}
+.pb.p1{--pcol:var(--p1)}.pb.p2{--pcol:var(--p2)}.pb.p3{--pcol:var(--p3)}
+.cal{background:var(--card);border:1px solid var(--line);border-radius:12px}
+.dows,.semana{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.dows{position:sticky;top:0;z-index:3;background:var(--card);border-radius:12px 12px 0 0}
+.dows span{padding:5px 6px;font:500 10.5px/1 var(--f-mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+.banda{grid-column:1/-1;padding:7px 8px 5px;font:700 14px/1.1 var(--f-display);text-transform:capitalize;background:var(--soft);border-bottom:1px solid var(--line)}
+.banda-m{margin:6px 0 0;font:700 15px/1.1 var(--f-display);text-transform:capitalize}
+.dia{min-height:64px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:3px 3px 5px;display:flex;flex-direction:column;gap:2px;min-width:0;cursor:pointer}
+.dia.sab{border-right:0}
+.dia.hoy{background:var(--today)}
+.dia.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+.dia.destino,.grupo.destino,.dcol.destino,.col.destino,.vchk.destino,.tab-dia.destino{box-shadow:inset 0 0 0 2px var(--accent);background:color-mix(in srgb,var(--accent) 14%,var(--card))}
+.num{font:500 11px/1 var(--f-mono);color:var(--muted);padding:2px 3px 3px;display:flex;justify-content:space-between;gap:4px}
+.num .m1{color:var(--accent);font-weight:700;text-transform:uppercase}
+.hoy .num b{color:var(--ink)}
+.num small{font-size:10px;color:var(--muted)}
+.mas-semanas{display:block;margin:8px auto}
+#marco{position:relative;overflow:hidden}
+#vista{transform-origin:0 0}
+.t{all:unset;box-sizing:border-box;display:flex;flex-direction:column;gap:1px;min-width:0;padding:1px 4px 1px 5px;border-radius:4px;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 10%,transparent);cursor:pointer;font-size:11px;line-height:1.3;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.t:hover{background:color-mix(in srgb,var(--c) 20%,transparent)}
+.t.prio{box-shadow:inset 0 0 0 1.5px var(--pcol)}
+.t .m{display:flex;justify-content:space-between;align-items:center;gap:4px}
+.t .m span:last-child{display:flex;gap:3px;align-items:center}
+.t .h{font:500 9.5px/1.3 var(--f-mono);color:var(--muted);flex:none}
+.t .n{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word;min-width:0;flex:1}
+.t .p{flex:none;font:700 9px/1 var(--f-mono);color:var(--pc);border:1px solid var(--pc);border-radius:3px;padding:1px 2px}
+.t .pb{font-size:8.5px;padding:2px 3px}
+.t.listo{opacity:.4}
+.t.listo .n{text-decoration:line-through}
+.t.hito .n{font-weight:700}
+.t.tent .n{font-style:italic}
+.t.arrastrando,.tc.arrastrando,.dr.arrastrando{opacity:.25}
+.tc.sobre,.dr.sobre{box-shadow:0 -3px 0 0 var(--accent)}
+.fantasma{position:fixed;z-index:50;pointer-events:none;box-shadow:0 8px 24px rgba(0,0,0,.25);background:var(--card)!important;opacity:.95;transform:rotate(-2deg)}
+.agenda{display:grid;gap:8px}
+.agenda .grupo{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px;display:grid;gap:3px}
+.agenda .grupo.hoy{background:var(--today)}
+.agenda h3{margin:0 0 3px;font:700 13px/1.2 var(--f-display);text-transform:capitalize}
+.agenda .t,.lista .t,.pslot .t{font-size:12.5px;padding:3px 6px}
+.agenda .t .n,.lista .t .n{-webkit-line-clamp:unset;display:block}
+.panel{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:max(10px,env(safe-area-inset-right,0px));bottom:10px;width:340px;max-width:calc(100vw - 20px);z-index:20;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;box-shadow:0 10px 40px rgba(0,0,0,.16);transform-origin:0 0}
+.panel[hidden]{display:none}
+.panel>*{flex:none}
+.panel h2{margin:0;font:700 16px/1.2 var(--f-display)}
+.panel h2.fecha{text-transform:capitalize}
+.fila{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.botones{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.lista{display:grid;gap:4px}
+.det{display:grid;gap:8px}
+.det h3{margin:0;font:700 15px/1.3 var(--f-body)}
+.det dl{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;margin:0;font-size:12.5px}
+.det dt{color:var(--muted)}
+.det dd{margin:0}
+.det .nota{background:var(--soft);border-radius:8px;padding:8px;font-size:12.5px;white-space:pre-wrap}
+.det a{color:var(--accent)}
+.pill{display:inline-flex;align-items:center;gap:5px}
+.pill i{width:9px;height:9px;border-radius:3px;background:var(--c)}
+.prio-btns{display:flex;gap:4px;align-items:center}
+.prio-btns button{border:1px solid var(--line);background:var(--card);border-radius:6px;padding:4px 8px;cursor:pointer;font:700 11px/1 var(--f-mono)}
+.prio-btns button[aria-pressed="true"]{background:var(--pcol);border-color:var(--pcol);color:#fff}
+.prio-btns .p1{--pcol:var(--p1)}.prio-btns .p2{--pcol:var(--p2)}.prio-btns .p3{--pcol:var(--p3)}
+.confirmar{border:1px solid var(--danger);border-radius:8px;padding:8px;display:grid;gap:6px;font-size:12.5px}
+.atajos{font-size:11px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+.atajos kbd{font:500 10.5px/1 var(--f-mono);border:1px solid var(--line);border-radius:3px;padding:1px 4px;background:var(--soft)}
+.dictado{display:grid;gap:8px}
+.dictado label{font-size:12px;color:var(--muted);font-weight:700}
+.dictado textarea{width:100%;min-height:110px;resize:vertical;border:1px solid var(--line);border-radius:10px;padding:9px;background:var(--bg);font-size:14px}
+.borrador{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:8px;padding:8px;display:grid;gap:6px;background:var(--bg)}
+.borrador input,.borrador select{border:1px solid var(--line);border-radius:6px;padding:4px 6px;background:var(--card);font-size:12.5px;min-width:0;width:100%}
+.borrador .g{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.borrador .g3{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:6px}
+.borrador label{display:grid;gap:2px;font-size:11px;color:var(--muted)}
+.borrador .quitar{justify-self:end;font-size:11.5px}
+.sug{border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:8px;display:grid;gap:6px;background:var(--bg)}
+.sug.nota{border-left-color:var(--muted)}
+.sug h4{margin:0;font:700 13px/1.3 var(--f-body)}
+.sug p{margin:0;font-size:12px;color:var(--muted)}
+.sug ul{margin:0;padding-left:16px;font-size:11.5px}
+.sug.hecha{opacity:.45}
+.msg{font-size:12px;border-radius:8px;padding:7px 9px;background:var(--soft)}
+.msg.err{color:var(--danger)}
+.vacio{color:var(--muted);font-size:12px}
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:var(--ink);color:var(--bg);border-radius:10px;padding:8px 12px;display:flex;gap:12px;align-items:center;font-size:12.5px;max-width:calc(100vw - 32px);box-shadow:0 6px 24px rgba(0,0,0,.25)}
+.toast button{all:unset;cursor:pointer;font-weight:700;text-decoration:underline}
+/* Tablero: columnas por categoría o por día, tarjetas tipo checklist ordenadas por prioridad */
+.tab-top{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;margin-bottom:10px}
+.tab-dias{display:flex;flex-wrap:wrap;gap:5px;align-items:center;width:100%;padding:4px 0 2px}
+.tab-dia{border:1px solid var(--line);background:var(--card);border-radius:8px;padding:4px 9px;cursor:pointer;font:500 11.5px/1.2 var(--f-mono);display:inline-flex;align-items:center;gap:5px;-webkit-user-select:none;user-select:none}
+.tab-dia.hoy{background:var(--today);color:var(--ink);font-weight:700}
+.tab-dia[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accentInk);font-weight:700}
+.tab-dia small{opacity:.75;font-size:10px}
+.tablero{display:flex;gap:10px;overflow-x:auto;padding-bottom:14px;align-items:flex-start;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-gutter:stable}
+.col{flex:0 0 280px;background:color-mix(in srgb,var(--k) 8%,var(--card));border:1px solid var(--line);border-top:5px solid var(--k);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:7px;max-height:calc(100vh - 170px);overflow-y:auto}
+.col.hoy-col{background:color-mix(in srgb,var(--today) 45%,var(--card))}
+.col h3{margin:2px 2px 2px;font:700 14px/1.2 var(--f-display);display:flex;justify-content:space-between;align-items:center;gap:6px}
+.col h3 small{font:500 11px/1 var(--f-mono);color:var(--muted)}
+.tc{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;background:var(--card);border:1px solid var(--line);border-bottom:5px solid var(--k);border-radius:10px;padding:8px 9px 7px;cursor:grab;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.tc:active{cursor:grabbing}
+.tc.urg{border:2px dashed var(--danger);border-bottom:5px solid var(--k)}
+.tc.listo{opacity:.5}
+.tc.listo .tn{text-decoration:line-through}
+.chk{all:unset;box-sizing:border-box;cursor:pointer;width:22px;height:22px;border:2px solid var(--muted);border-radius:6px;display:grid;place-items:center;font:700 13px/1 var(--f-body);color:var(--accentInk)}
+.chk[aria-checked="true"]{background:var(--accent);border-color:var(--accent)}
+.tcb{all:unset;cursor:grab;display:grid;gap:5px;min-width:0}
+.tn{font-size:12.5px;line-height:1.32;word-break:break-word}
+.tm{display:flex;flex-wrap:wrap;gap:3px 8px;align-items:center;font:500 10.5px/1.3 var(--f-mono);color:var(--muted)}
+.tm .u{color:var(--danger);font-weight:700}
+.tm .pq{font:700 9.5px/1 var(--f-mono);border-radius:4px;padding:2px 4px;color:#fff;background:var(--pc)}
+.nump{font:700 17px/1 var(--f-display);color:var(--muted);min-width:20px;text-align:right;padding-top:2px}
+.tc.urg .nump{color:var(--danger)}
+.sep-listas{font:700 11px/1 var(--f-mono);color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin:6px 2px 0}
+/* Vista Día: columnas de ayer, hoy y mañana (o semana) como checklist con scroll horizontal y drag & drop */
+.dv-top{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;margin-bottom:10px}
+.dv-top .seg button{font-size:15px;padding:4px 12px}
+.vchk{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:5px 10px 5px 7px;font-size:12.5px;-webkit-user-select:none;user-select:none}
+.vchk .box{width:18px;height:18px;border:2px solid var(--muted);border-radius:5px;display:grid;place-items:center;font:700 11px/1 var(--f-body);color:var(--accentInk)}
+.vchk[aria-checked="true"] .box{background:var(--accent);border-color:var(--accent)}
+.vchk[aria-checked="false"]{opacity:.6}
+.dcols{display:flex;gap:10px;overflow-x:auto;padding-bottom:14px;align-items:flex-start;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;scrollbar-gutter:stable}
+.dcol{flex:1 0 300px;min-width:280px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:6px}
+.dcol.hoy{background:var(--today)}
+.dcol.centro{box-shadow:inset 0 0 0 2px var(--accent)}
+.dcol h3{margin:0 0 2px;font:700 15px/1.2 var(--f-display);display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.dcol h3 small{font:500 11px/1 var(--f-mono);color:var(--muted);text-transform:none}
+.dcol>.btn{justify-self:start;margin-top:4px}
+.dr{display:grid;grid-template-columns:auto 1fr;gap:9px;align-items:start;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--c);border-radius:9px;padding:7px 9px;cursor:grab;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.dr:active{cursor:grabbing}
+.dr.listo{opacity:.5}
+.dr.listo .dn{text-decoration:line-through}
+.dr.sel{box-shadow:0 0 0 2px var(--accent)}
+.drb{all:unset;box-sizing:border-box;cursor:grab;display:grid;gap:3px;min-width:0}
+.dh{font:500 11px/1.2 var(--f-mono);color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dh .q{font:700 9.5px/1 var(--f-mono);border-radius:4px;padding:2px 4px;color:#fff;background:var(--pc)}
+.dn{font-size:13.5px;line-height:1.35;word-break:break-word}
+@media (max-width:700px){.dcol,.col{flex-basis:86vw;max-height:none}}
+@media (max-width:900px){body.con-panel .wrap{padding-right:max(16px,env(safe-area-inset-right,0px))}.prios{grid-template-columns:1fr 1fr}.prios-t{grid-column:1/-1;grid-row:auto}}
+@media (prefers-reduced-motion:no-preference){.t{transition:background .12s}}
+</style>
+<div id="raiz"></div>
+<script type="application/json" id="state">{"tareas":[{"id":"3fe3070f2d4f81bf9befcec82594c508","ini":"2026-10-19T11:00:00.000Z","fin":"2026-10-19T12:00:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎥 Grabar: plantilla de Notion (el pregrabado del calendario)","nota":"Va primero porque es grabación de pantalla de algo que ya existe y le deja a Nakari qué editar apenas llega; Forma y Fondo necesita la escaleta aprobada y videos de ejemplo.","tipo":"🎙️ Grabar","prio":""},{"id":"3fe3070f2d4f8140b9c6e8c1ff454e5e","ini":"2026-10-19T12:00:00.000Z","fin":"2026-10-19T12:30:00.000Z","quien":"Carlos","area":"👥 Equipo","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"👥 Reunirme con: Nakari, arranque del lanzamiento (su rol y la semana)","nota":"Página 🧭 Nakari: arrancamos. Listo cuando Nakari sabe su rol, su semana y cómo vamos a trabajar.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f8155bd70e1101f6dfb23","ini":"2026-10-19T12:00:00.000Z","fin":"2026-10-19T12:30:00.000Z","quien":"Nakari","area":"👥 Equipo","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"👥 Reunirme con: Carlos, arranque del lanzamiento (mi rol y la semana)","nota":"Página 🧭 Nakari: arrancamos. Hoy sale a las 12:00 (inscripción).","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f817aade4fe0b9ec2e70d","ini":"2026-10-19T13:00:00.000Z","fin":"2026-10-19T13:30:00.000Z","quien":"Carlos","area":"👥 Equipo","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"📲 Escribirle a: Nakari, las fichas del mar 20 al vie 23 y pedirle su horario nuevo","nota":"Edición del VSL, flyer y respuesta automática, grupos, cuestionario, Skool por dentro. Su horario cambia desde el 9 nov.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f810bba4ad05931bd93aa","ini":"2026-10-19T16:15:00.000Z","fin":"2026-10-19T17:45:00.000Z","quien":"Carlos","area":"📅 Agenda","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🙋 Asistir: notaría, papeles del carro (traslado y trámite)","nota":"Supuesto: 1 h de trámite + traslado. Almuerzo corrido a 13\\:45-14\\:30.","tipo":"👤 Agenda","prio":""},{"id":"3ff3070f2d4f80069f74e603a59962f3","ini":"2026-10-20","fin":"","quien":"Nakari","area":"","rel":"","listo":true,"hito":false,"tent":false,"tiempo":"","tarea":"Entender: TEAM, lanzamiento, skool","nota":"","tipo":"","prio":""},{"id":"3ff3070f2d4f80cbb5bec4e437177ca1","ini":"2026-10-20","fin":"","quien":"Nakari","area":"","rel":"","listo":true,"hito":false,"tent":false,"tiempo":"","tarea":"Pietaje Notion para revisar","nota":"","tipo":"","prio":""},{"id":"3fe3070f2d4f81909ee1fda791b1bb26","ini":"2026-10-20T14:00:00.000Z","fin":"2026-10-20T23:00:00.000Z","quien":"Carlos","area":"📅 Agenda","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"9 h","tarea":"🙋 Asistir: Leadership Training de Luque (mar 20)","nota":"De día no hay producción. De noche solo aprobar lo que mande Nakari.","tipo":"👤 Agenda","prio":""},{"id":"4003070f2d4f8097b1c9dafadd78ecc6","ini":"2026-10-21","fin":"","quien":"Nakari","area":"","rel":"","listo":true,"hito":false,"tent":false,"tiempo":"","tarea":"Pietaje Notion para revisar","nota":"","tipo":"","prio":""},{"id":"3fe3070f2d4f811b9723c25b5c5b4b98","ini":"2026-10-21T14:00:00.000Z","fin":"2026-10-21T23:00:00.000Z","quien":"Carlos","area":"📅 Agenda","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"9 h","tarea":"🙋 Asistir: Leadership Training de Luque (mié 21)","nota":"De día no hay producción.","tipo":"👤 Agenda","prio":""},{"id":"3fe3070f2d4f8143b3a4f4c3c53584c8","ini":"2026-10-22T14:00:00.000Z","fin":"2026-10-22T23:00:00.000Z","quien":"Carlos","area":"📅 Agenda","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"9 h","tarea":"🙋 Asistir: Leadership Training de Luque (jue 22)","nota":"De día no hay producción.","tipo":"👤 Agenda","prio":""},{"id":"3fe3070f2d4f81f59d99f9a9a9179cec","ini":"2026-10-26T15:00:00.000Z","fin":"2026-10-26T16:30:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"👀🎞️ Montar: cuestionario de los grupos (con la pregunta del horario)","nota":"Probado con una respuesta.","tipo":"🧩 Montaje","prio":""},{"id":"3fe3070f2d4f81ea8123ffabf749f5cb","ini":"2026-10-26T20:00:00.000Z","fin":"2026-10-26T21:30:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1h 30 m","tarea":"🎨Video VSL","nota":"Mensaje diario: hoy toca X · ayer quedó Y · no quedó Z · duda.","tipo":"🎨 Diseño","prio":""},{"id":"3fe3070f2d4f816f8e5dd5a88635c6e2","ini":"2026-10-27T12:00:00.000Z","fin":"2026-10-27T13:30:00.000Z","quien":"Nakari","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"💵🤬 Cobrar: link de pago de $50 + Zelle y Guaybo, probado con el pago de un amigo","nota":"","tipo":"🧩 Montaje","prio":""},{"id":"3fe3070f2d4f81cd95baecb90b05b4b2","ini":"2026-10-27T12:00:00.000Z","fin":"2026-10-27T15:30:00.000Z","quien":"Nakari","area":"🏫 Skool y classroom","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"3 h 30 m","tarea":"👀🎞️ Montar: Skool por dentro (nombre, categorías, niveles, Auto DM)","nota":"","tipo":"🧩 Montaje","prio":""},{"id":"3fe3070f2d4f818d9237e2cc4b57e1d4","ini":"2026-10-27T16:00:00.000Z","fin":"2026-10-27T17:00:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"💬 Comunidad: filtro de founders (mar 27)","nota":"","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81daaf9ee50eae4a6b1e","ini":"2026-10-27T18:45:00.000Z","fin":"2026-10-27T20:45:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🎨 Diseñar: flyer, respuesta automática y preguntas frecuentes de founders","nota":"","tipo":"🎨 Diseño","prio":""},{"id":"3fe3070f2d4f8124a241f0d8dff86a82","ini":"2026-10-28T14:00:00.000Z","fin":"2026-10-28T15:00:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"📝 Guion: post anclado de founders v2 + aprobar lo de Nakari","nota":"Usa el bloque de caminar (el primero que se sacrifica).","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f818d84b6ed3da17aeaad","ini":"2026-10-28T14:00:00.000Z","fin":"2026-10-28T15:00:00.000Z","quien":"Carlos","area":"👥 Equipo","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"📌 Definir: lo que queda de H0 (anuncios y escaleta de Forma y Fondo aprobados, premios, founders, Moi)","nota":"Sin guion de anuncios aprobado hoy no hay grabación el vie 23. Escaleta de Forma y Fondo en la parte 25 de la v8. Incluye cerrar con Moi la fecha del shooting. Si la tarde se atrasa, esto pasa al martes 07\\:00-08\\:00 (libre temprano antes de Luque).","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f8106ad28c1141bda269b","ini":"2026-10-28T15:00:00.000Z","fin":"2026-10-28T15:30:00.000Z","quien":"Carlos","area":"👥 Equipo","rel":"🔴 Indispensable","listo":true,"hito":true,"tent":false,"tiempo":"30 m","tarea":"◆ H0 · 📌 Definir: plan aprobado","nota":"Listo cuando: nombre, founders y anuncios decididos, plantilla de Notion grabada. Si no llega: todo se corre un día. Lo que quede se cierra el lun 19 a las 4:15 pm.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f81a9b430f04c560f98b6","ini":"2026-10-28T15:00:00.000Z","fin":"2026-10-28T16:00:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"💬 Comunidad: filtro de founders (mié 28)","nota":"","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f819caaa0d4552086cfc1","ini":"2026-10-28T16:00:00.000Z","fin":"2026-10-28T17:15:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"1 h 15 m","tarea":"📝 Guion: mensaje de apertura y anclado de los grupos (pasar a tu voz)","nota":"","tipo":"🎬 Guion","prio":""},{"id":"4083070f2d4f81d7bab5e98701912609","ini":"2026-10-29T12:00:00.000Z","fin":"2026-10-29T13:00:00.000Z","quien":"Nakari","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎞️ Editar: Ads regulares 1 · dinámicos","nota":"Prioridad 1. Ya están pietajeados: falta meterles los dinámicos. Son 6 entre el jue y el vie; la meta es 4 por día para asegurar 3.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f810d8f65e16511aee8a2","ini":"2026-11-06T12:15:00.000Z","fin":"2026-11-06T14:15:00.000Z","quien":"Nakari","area":"🎥 Contenido","rel":"⚪ Descartable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🎞️ Editar: plantilla de Notion, corte para YouTube","nota":"Segundo en la ruta de recorte (✂️): si el tiempo no da, se va.","tipo":"📺 Editar","prio":""},{"id":"4083070f2d4f817ca9b7f15001149eac","ini":"2026-10-29T13:00:00.000Z","fin":"2026-10-29T14:00:00.000Z","quien":"Nakari","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎞️ Editar: Ads regulares 2 · dinámicos","nota":"Ya está pietajeado: falta meterle los dinámicos.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f819681afd4461f8fb92f","ini":"2026-10-29T14:00:00.000Z","fin":"2026-10-29T14:30:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"💬 Comunidad: filtro de founders con notas de voz (jue 29)","nota":"Entra / no entra (parte 22 de la v8). La preventa cierra el dom 1 nov.","tipo":"💬 Comunidad","prio":""},{"id":"4083070f2d4f8116aa41e24fe784ba6c","ini":"2026-10-29T14:00:00.000Z","fin":"2026-10-29T15:00:00.000Z","quien":"Nakari","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎞️ Editar: Ads regulares 3 · dinámicos","nota":"Ya está pietajeado: falta meterle los dinámicos. Con este se cumple el mínimo de 3 del jueves.","tipo":"📺 Editar","prio":""},{"id":"4083070f2d4f8192a675fe293c71996a","ini":"2026-11-02T14:30:00.000Z","fin":"2026-11-02T16:00:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"📲 Escribirle a: 30 personas que les pueda interesar el grupo","nota":"Gente que sepas que le puede interesar. Invitación personal con el link del grupo.","tipo":"💬 Comunidad","prio":"P1"},{"id":"3fe3070f2d4f81349b00ca1b4d8da11c","ini":"2026-10-29T14:45:00.000Z","fin":"2026-10-29T15:45:00.000Z","quien":"Carlos","area":"👥 Equipo","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"📌 Definir: rehacer el bloque de noviembre de Nakari con su horario nuevo","nota":"Sus tareas desde el 9 nov están con su horario viejo y la nota de horario por confirmar.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f81e4a019f82727eb90f3","ini":"2026-10-24T15:00:00.000Z","fin":"2026-10-24T15:00:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🎥 Grabar: los 5 Ads regulares (una sola tanda, vertical, guion nuevo)","nota":"Temprano para que Nakari los exporte en su mañana. La promesa es la clase del 13.","tipo":"🎙️ Grabar","prio":""},{"id":"4083070f2d4f81bfbccee6831d04f97b","ini":"2026-10-29T15:00:00.000Z","fin":"2026-10-29T16:00:00.000Z","quien":"Nakari","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎞️ Editar: Ads regulares 4 · dinámicos","nota":"La meta del jueves es 4. Si no sale hoy, pasa a primera hora del viernes.","tipo":"📺 Editar","prio":""},{"id":"4083070f2d4f81a29d7ec1975d1fc9e1","ini":"2026-10-30T18:45:00.000Z","fin":"2026-10-30T19:45:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"👀🎞️ Montar: píxel de Meta en la landing y probarlo","nota":"En la landing de los anuncios oficiales. En Probar eventos tienen que salir PageView, CompleteRegistration y Lead.","tipo":"🧩 Montaje","prio":"P2"},{"id":"4083070f2d4f817caed0e3581769d227","ini":"2026-10-29T19:45:00.000Z","fin":"2026-10-29T21:15:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"👀🎞️ Montar: 2 campañas de prueba A/B ($3, 3 días)","nota":"A: anuncio → video de YouTube → formulario. B: anuncio → WhatsApp → se le pasa el video. Medir el costo por clic y cuál llega más al formulario. Corren del jue 29 al dom 1.","tipo":"🧩 Montaje","prio":"P1"},{"id":"4083070f2d4f8157b89cde98e6b3f287","ini":"2026-10-30T12:00:00.000Z","fin":"2026-10-30T13:00:00.000Z","quien":"Nakari","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎞️ Editar: Ads regulares 5 · dinámicos","nota":"Prioridad 1. Lo que no salió el jueves + los que faltan para llegar a 6.","tipo":"📺 Editar","prio":""},{"id":"4083070f2d4f818b8f37c3ec77d92637","ini":"2026-10-30T13:00:00.000Z","fin":"2026-10-30T14:00:00.000Z","quien":"Nakari","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎞️ Editar: Ads regulares 6 · dinámicos","nota":"Ya está pietajeado: falta meterle los dinámicos. Después de este, exportar los 6 con subtítulos.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f811cb6e0d653713e14b0","ini":"2026-10-30T13:30:00.000Z","fin":"2026-10-30T15:00:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"👀🎞️ Montar: grupos de WhatsApp (Forma y Fondo #1), descripción nueva y respuesta automática","nota":"Con la respuesta automática nueva (la que invita a la clase del 13).","tipo":"🧩 Montaje","prio":""},{"id":"3fe3070f2d4f81f0b527c89a9dee245f","ini":"2026-10-30T14:00:00.000Z","fin":"2026-10-30T14:30:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"💬 Comunidad: filtro de founders con notas de voz (vie 30)","nota":"Entra / no entra (parte 22 de la v8). La preventa cierra el dom 1 nov.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81729ff8f0d9d3643d8a","ini":"2026-10-30T15:00:00.000Z","fin":"2026-10-30T15:00:00.000Z","quien":"Nakari","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"4 h 30 m","tarea":"🎞️ Editar: exportar los 5 Ads regulares con subtítulos","nota":"A la carpeta de anuncios, para que Carlos monte las campañas el sáb 24.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f81989e88c574d9d52345","ini":"2026-10-30T15:00:00.000Z","fin":"2026-10-30T15:00:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"✅ Publicar: mensaje anclado en los grupos mientras se llenan (30 oct al 2 nov)","nota":"El texto que Carlos pasó a su voz el vie 23.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81c498acfcc17b68c4a5","ini":"2026-11-09T11:00:00.000Z","fin":"2026-11-09T13:00:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🎥 Grabar: terminar Forma y Fondo (con las correcciones)","nota":"Plan del 8 nov (cierre de la semana). Lo primero del día, temprano. Viene corriéndose desde el 31 oct; el guion va en la V7.1. El sáb 7 OBS se trababa en 4K a 24 fps: probarlo antes.","tipo":"🎙️ Grabar","prio":"P1"},{"id":"3fe3070f2d4f815e89afdee86e6e0bc1","ini":"2026-10-31T14:00:00.000Z","fin":"2026-10-31T14:30:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"💬 Comunidad: filtro de founders con notas de voz (sáb 31)","nota":"Entra / no entra (parte 22 de la v8). La preventa cierra el dom 1 nov.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f813ba806dd8a5a369a80","ini":"2026-11-10T19:00:00.000Z","fin":"2026-11-10T19:45:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"45 m","tarea":"🎨 Diseñar: portadas de los 9 cursos del classroom, parte 1 (van en el VSL)","nota":"Plan del 8 nov (cierre de la semana). Meterle un poco de mano a las portadas de Skool. Pedido del 18 oct: el classroom se ve en el VSL, sin portadas se ve vacío.","tipo":"🎨 Diseño","prio":""},{"id":"3fe3070f2d4f81bf9300e605cb0d1517","ini":"2026-10-31T15:45:00.000Z","fin":"2026-10-31T17:15:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"⚪ Descartable","listo":true,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"📝 Guion: video de Valencia (Corfesa), el antes, el durante y el después","nota":"Tercero en la ruta de recorte (✂️).","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f813f991ed982f07a120d","ini":"2026-10-31T18:45:00.000Z","fin":"2026-10-31T20:00:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h 15 m","tarea":"🎨 Diseñar: portadas de los 9 cursos del classroom, parte 2 (van en el VSL)","nota":"Pedido del 18 oct: el classroom se ve en el VSL, sin portadas se ve vacío.","tipo":"🎨 Diseño","prio":""},{"id":"3fe3070f2d4f816e9c0fd07783a14f0f","ini":"2026-11-01T14:00:00.000Z","fin":"2026-11-01T14:30:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"💬 Comunidad: filtro de founders con notas de voz (dom 1)","nota":"Entra / no entra (parte 22 de la v8). La preventa cierra el dom 1 nov.","tipo":"💬 Comunidad","prio":""},{"id":"4083070f2d4f81a48384d1b157f2f89e","ini":"2026-11-01T15:00:00.000Z","fin":"2026-11-01T15:15:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"📌 Definir: comparar las campañas de prueba A/B","nota":"Costo por clic de cada una y cuántos llegaron al formulario. Sirve para decidir el camino de los anuncios oficiales.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f810c8052c49136cecbc1","ini":"2026-11-09T17:00:00.000Z","fin":"2026-11-09T20:30:00.000Z","quien":"Nakari","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"3 h 30 m","tarea":"🎞️ Editar: video Forma y Fondo (1/2)","nota":"Plan del 8 nov (cierre de la semana). Arranca apenas grabe en la mañana (lun 9).","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f81c9a37ed1d38b428885","ini":"2026-11-02T14:00:00.000Z","fin":"2026-11-02T14:30:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"💬 Comunidad: filtro de founders con notas de voz (lun 2)","nota":"Entra / no entra (parte 22 de la v8). La preventa cierra el dom 1 nov.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f811db323dd27c10c507c","ini":"2026-11-02T14:30:00.000Z","fin":"2026-11-02T14:45:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"📌 Definir: Ads regulares en prueba, costo por persona en el grupo (lun 2)","nota":"Revisión diaria (antes la hacía Jorge). Anotar el costo por persona que entra al grupo.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f81079da4c6fa2bd19448","ini":"2026-11-05T14:45:00.000Z","fin":"2026-11-05T15:45:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"📌 Definir: cerrar la lista de Fundamentos","nota":"Se cierra con lo que esté en ✅ en el checklist; el resto pasa al L2.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f81179116ff1ff81aeb22","ini":"2026-11-02T15:00:00.000Z","fin":"2026-11-02T15:00:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"2 h","tarea":"👀🎞️ Montar: campañas en Meta (5 Ads regulares, segmentación, sin gastar)","nota":"Antes era de Jorge. Clic a WhatsApp, con los textos aprobados.","tipo":"🧩 Montaje","prio":""},{"id":"3fe3070f2d4f81648546f32629699f15","ini":"2026-11-11T00:00:00.000Z","fin":"2026-11-11T00:30:00.000Z","quien":"Nakari","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"30 m","tarea":"✅ Publicar: video Forma y Fondo en YouTube (mar 10, noche)","nota":"Plan del 8 nov (cierre de la semana). Sale el martes en la noche.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81a4aed6d5bf8bb62e67","ini":"2026-11-02T16:00:00.000Z","fin":"2026-11-02T16:30:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"💬 Mensaje: lun 2 nov · apertura de los grupos + abre el cuestionario","nota":"","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f813b9611da39ec0f61a8","ini":"2026-11-01T16:30:00.000Z","fin":"2026-11-01T17:00:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":true,"hito":true,"tent":false,"tiempo":"30 m","tarea":"◆ H4 · ✅ Publicar: grupos activos","nota":"Listo cuando: mensaje de apertura enviado y Forma y Fondo publicado. Si no llega el video: se abre con un análisis. (Hito de Nakari: va dentro de su horario.)","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81c4a48dd1d299ff2be7","ini":"2026-11-02T17:30:00.000Z","fin":"2026-11-02T17:30:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🎥 Grabar: VSL de founders (5 min)","nota":"El único día de producción de la semana. Sin VSL no abre la preventa el vie 23.","tipo":"🎙️ Grabar","prio":""},{"id":"3fe3070f2d4f8144b903c1cbe7e46c75","ini":"2026-11-11","fin":"","quien":"Carlos","area":"🎥 Contenido","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"3 h 45 m","tarea":"🎥 Grabar: pauta con Moi (FELLAS) + un video para la secuencia","nota":"Plan del 8 nov (cierre de la semana). Confirmada para el mié 11; la hora está por confirmar. Ya no es tentativa.","tipo":"🎙️ Grabar","prio":""},{"id":"3fe3070f2d4f813593b8c3da6fd78771","ini":"2026-11-14T13:00:00.000Z","fin":"2026-11-14T17:00:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":true,"tiempo":"4 h","tarea":"🎞️ Editar: video de Valencia (tentativo: choca con Forma y Fondo y los ensayos)","nota":"8 nov: la edición va sí o sí y antes que las diapositivas. Lo tentativo es la subida del mar 17, no la edición: si sale el martes, me tengo que sentar a editarlo.","tipo":"📺 Editar","prio":"P1"},{"id":"3fe3070f2d4f81488193ee8586108aca","ini":"2026-11-10T12:00:00.000Z","fin":"2026-11-10T15:30:00.000Z","quien":"Nakari","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"3 h 30 m","tarea":"🎞️ Editar: video Forma y Fondo (2/2) y subirlo sin publicar","nota":"Plan del 8 nov (cierre de la semana). Lista para que la revise en la tarde del mar 10.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f81e394fdeebd68676cff","ini":"2026-11-03T14:30:00.000Z","fin":"2026-11-03T14:45:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"📌 Definir: Ads regulares en prueba, costo por persona en el grupo (mar 3)","nota":"Revisión diaria (antes la hacía Jorge). Anotar el costo por persona que entra al grupo.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f81ac89f0ca3953340a05","ini":"2026-11-09T14:45:00.000Z","fin":"2026-11-09T15:30:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"45 m","tarea":"🎥 Grabar: análisis 1 (un perfil profesional)","nota":"Plan del 8 nov (cierre de la semana). El primero va normal por el grupo y con un perfil profesional: le sirve a todos y el profesional no siente que es algo solo para creativos.","tipo":"🎙️ Grabar","prio":""},{"id":"3fe3070f2d4f8107b2efdac4ed3023a7","ini":"2026-11-02T15:00:00.000Z","fin":"2026-11-02T15:00:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":true,"tent":false,"tiempo":"1 h","tarea":"◆ H2 · 📌 Definir: revisar las campañas sin gastar, listo para pautar","nota":"Listo cuando: 5 anuncios exportados, campañas montadas, grupos y cuestionario creados. Si no llega: los anuncios arrancan con 3 de 5.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f81dbaff2df54aefa67c1","ini":"2026-11-03T15:00:00.000Z","fin":"2026-11-03T15:00:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":true,"tent":false,"tiempo":"30 m","tarea":"◆ H3 · ✅ Publicar: prenden los Ads regulares (prueba, ~$175)","nota":"Listo cuando: el gasto corriendo y las primeras personas entrando al grupo. Fase prueba: los 5 a ~$5 al día hasta el dom 1 nov.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f8106a849e57a27072604","ini":"2026-11-03T17:30:00.000Z","fin":"2026-11-03T17:30:00.000Z","quien":"Carlos","area":"👥 Equipo","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"📲 Escribirle a: Nakari, el VSL listo en la carpeta para que lo edite","nota":"","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81e28a17f9de442d449a","ini":"2026-11-03T17:30:00.000Z","fin":"2026-11-03T17:30:00.000Z","quien":"Nakari","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"3 h","tarea":"🎞️ Editar: VSL de founders (1/2)","nota":"","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f8120bedfe6f9839f34aa","ini":"2026-11-05T11:00:00.000Z","fin":"2026-11-05T12:00:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"💬 Comunidad: filtro de founders, últimas respuestas (mié 4 nov)","nota":"Cierra la preventa hoy: contar los founders para la señal de las 6 pm.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81e58c84d50983afedc2","ini":"2026-11-04T14:30:00.000Z","fin":"2026-11-04T14:45:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"📌 Definir: Ads regulares en prueba, costo por persona en el grupo (mié 4)","nota":"Revisión diaria (antes la hacía Jorge). Anotar el costo por persona que entra al grupo.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f819aa180f8cbb3778ae8","ini":"2026-11-04T17:30:00.000Z","fin":"2026-11-04T17:30:00.000Z","quien":"Nakari","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🎞️ Editar: VSL de founders (2/2) y subirlo no listado","nota":"","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f81f6b5acfb396a15db24","ini":"2026-11-04T17:30:00.000Z","fin":"2026-11-04T17:30:00.000Z","quien":"Carlos","area":"👥 Equipo","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"📌 Definir: aprobar lo que mandó Nakari (jue 29)","nota":"","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f81cdb635f31e6a76b89e","ini":"2026-11-09T16:30:00.000Z","fin":"2026-11-09T16:45:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"✅ Publicar: análisis 1 en el grupo (mediodía)","nota":"Plan del 8 nov (cierre de la semana). Va normal por el grupo. Sirve para que la gente siga llenando el formulario de análisis.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81aa864debd40763c0f5","ini":"2026-11-09T12:15:00.000Z","fin":"2026-11-09T16:00:00.000Z","quien":"Nakari","area":"🎥 Contenido","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"3 h 45 m","tarea":"🎞️ Editar: clips de los análisis (tanda 1) para TikTok y el classroom","nota":"","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f815ebc1dde229db4843a","ini":"2026-11-05T14:00:00.000Z","fin":"2026-11-05T14:15:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"📌 Definir: Ads regulares en prueba, costo por persona en el grupo (jue 5)","nota":"Revisión diaria (antes la hacía Jorge). Anotar el costo por persona que entra al grupo.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f8116afb6d20a158d3e93","ini":"2026-11-05T17:00:00.000Z","fin":"2026-11-05T17:15:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"📌 Definir: Ads regulares en escala, costo por persona en el grupo (jue 5)","nota":"","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f812d9499ea16343007c0","ini":"2026-11-05T17:30:00.000Z","fin":"2026-11-05T17:30:00.000Z","quien":"Carlos","area":"👥 Equipo","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"📌 Definir: aprobar lo que mandó Nakari (vie 30, antes del BJJ)","nota":"","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f81c68834c5370e62f5f0","ini":"2026-11-05T17:30:00.000Z","fin":"2026-11-05T17:30:00.000Z","quien":"Nakari","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"✅ Publicar: VSL no listado en la respuesta automática + link de pago listo","nota":"","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f8109a80ad285115f66e6","ini":"2026-11-16T12:00:00.000Z","fin":"2026-11-16T15:30:00.000Z","quien":"Nakari","area":"🎥 Contenido","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"3 h 30 m","tarea":"🎞️ Editar: video de Valencia (2/2) y subirlo sin publicar","nota":"8 nov: la edición no es tentativa (la subida del mar 17 sí). Termina lo que yo deje el fin de semana.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f81cf893fd31efd1817f2","ini":"2026-11-06T15:30:00.000Z","fin":"2026-11-06T16:45:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"⚪ Descartable","listo":false,"hito":false,"tent":true,"tiempo":"1 h 15 m","tarea":"🎞️ Editar: clip de Moi para los grupos (60 a 90 s)","nota":"Tentativo, depende del shooting. Primero en la ruta de recorte.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f81dcaf0cc2b1217fb266","ini":"2026-10-28T17:30:00.000Z","fin":"2026-10-28T17:30:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":true,"tent":false,"tiempo":"30 m","tarea":"◆ H1 · ✅ Publicar: abre la preventa de founders (primer flyer enviado)","nota":"Listo cuando: VSL arriba, flyer circulando, respuesta automática y link de $50 probados. Si no llega: se acorta la preventa, no se mueve el 1 nov.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81b0b866f384e1b1eb3b","ini":"2026-11-09T12:00:00.000Z","fin":"2026-11-09T12:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"15 m","tarea":"✅ Publicar: análisis Forma y Fondo 2/3 en los grupos (lun 9)","nota":"Con la plantilla de cada análisis.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81a0b411d8e9f959cd46","ini":"2026-11-17T23:00:00.000Z","fin":"2026-11-17T23:30:00.000Z","quien":"Nakari","area":"🎥 Contenido","rel":"⚪ Descartable","listo":false,"hito":false,"tent":true,"tiempo":"30 m","tarea":"✅ Publicar: video de Valencia en YouTube + mensaje al grupo (mar 17, por confirmar)","nota":"Plan del 8 nov (cierre de la semana). Pieza de autoridad. Por confirmar si sale el mar 17.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81648d07c3eecb53970d","ini":"2026-11-09T12:45:00.000Z","fin":"2026-11-09T13:00:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"⚪ Descartable","listo":false,"hito":false,"tent":true,"tiempo":"15 m","tarea":"💬 Mensaje: el día del shooting de Moi, clip en los grupos","nota":"Tentativo. Primero en la ruta de recorte.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f8176a35dec798b85fbcb","ini":"2026-11-10T13:00:00.000Z","fin":"2026-11-10T14:00:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎥 Grabar: Fundamentos, empezar los términos (mismo setup)","nota":"Plan del 8 nov (cierre de la semana). Aprovechar el mismo setup de Forma y Fondo. Por lo menos empezar: el guion v3 tiene 132 términos (5 nov).","tipo":"🎙️ Grabar","prio":"P2"},{"id":"3fe3070f2d4f81c39adbcff0beb0c10e","ini":"2026-11-09T16:15:00.000Z","fin":"2026-11-09T16:30:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"15 m","tarea":"✅ Publicar: análisis Forma y Fondo 3/3 en los grupos (lun 9)","nota":"Con la plantilla de cada análisis.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81b7ae71f1a47ef68654","ini":"2026-11-09T16:30:00.000Z","fin":"2026-11-09T16:45:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"15 m","tarea":"💬 Mensaje: lun 9 nov · el anuncio de la clase (agéndate)","nota":"","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f811a8227d3431ca31f96","ini":"2026-11-09T17:00:00.000Z","fin":"2026-11-09T17:15:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"📌 Definir: Ads regulares en escala, costo por persona en el grupo (lun 9)","nota":"","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f8129bd0fc58d96a1d665","ini":"2026-11-09T17:30:00.000Z","fin":"2026-11-09T17:30:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":true,"tent":false,"tiempo":"30 m","tarea":"◆ H5 · 📌 Definir: cierra founders, la señal de tracción","nota":"Listo cuando: founders contados y decisión sobre la escala. 15 o más = se escalan los anuncios · 5 a 14 = se ajusta el mensaje · menos de 5 = se revisa la oferta.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f8137841cd92894480786","ini":"2026-11-09T17:30:00.000Z","fin":"2026-11-09T17:30:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"2 h","tarea":"💬 Comunidad: responder el filtro de founders con notas de voz (lun 2)","nota":"Entra / no entra: el filtro está en la parte 22 de la v8.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f814fb899c7f8e5cddec2","ini":"2026-11-09T18:45:00.000Z","fin":"2026-11-09T19:15:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"📌 Definir: cerrar el horario de la cohorte (con la encuesta)","nota":"Recomendado: clase martes 7 a 9 pm, análisis jueves 7 a 8 pm, preguntas domingo 7 a 8 pm.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f811282eacf411e9b192a","ini":"2026-11-09T19:15:00.000Z","fin":"2026-11-09T19:30:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"✅ Publicar: apagar los Ads regulares (lun 9 nov)","nota":"Recomendación del bloque Presupuesto de anuncios (opción B): el que entra después del 7 se pierde la mitad de la secuencia. Si se elige la A, se apagan el jue 12.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81b0bdf5d7fa9781e7b4","ini":"2026-11-10T11:00:00.000Z","fin":"2026-11-10T13:30:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h 30 m","tarea":"🎥 Grabar: 4 análisis más","nota":"Plan del 8 nov (cierre de la semana). Desde el segundo, la idea es subirlos a TikTok (@ClipsDitron) y no al grupo: ver sugerencias.","tipo":"🎙️ Grabar","prio":""},{"id":"3fe3070f2d4f81b1abf2ddfab380c5a2","ini":"2026-11-09T21:15:00.000Z","fin":"2026-11-09T22:45:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"📝 Guion: About page de Skool (8 bloques), textos finales","nota":"La parte de Carlos del About page; Nakari la monta.","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f81968349c8ec89b4eef7","ini":"2026-11-10T12:00:00.000Z","fin":"2026-11-10T15:00:00.000Z","quien":"Nakari","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"3 h","tarea":"🎞️ Editar: Fundamentos, módulos 1 y 2","nota":"","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f81faac9fd65c9af19e27","ini":"2026-11-07T14:00:00.000Z","fin":"2026-11-07T17:00:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"3 h","tarea":"📝 Guion: secuencia del dolor, 6 textos + los 3 del viernes (pasar a tu voz)","nota":"Texto + audio de 1 a 2 min, sale a las 7 pm. Borradores en la página Secuencia del dolor.","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f8172a514edd5035fc2f7","ini":"2026-11-10T15:00:00.000Z","fin":"2026-11-10T17:00:00.000Z","quien":"Nakari","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"2 h","tarea":"👀🎞️ Montar: About page de Skool con los 8 bloques","nota":"","tipo":"🧩 Montaje","prio":""},{"id":"3fe3070f2d4f8101ae6bfc8c6917b646","ini":"2026-11-10T17:30:00.000Z","fin":"2026-11-10T17:30:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"👀🎞️ Montar: escalar los 2 o 3 mejores Ads regulares (~$425)","nota":"Los de menor costo por persona en el grupo. Antes era de Jorge.","tipo":"🧩 Montaje","prio":""},{"id":"3fe3070f2d4f813eadf4e98761cb5893","ini":"2026-11-10T18:45:00.000Z","fin":"2026-11-10T20:15:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🎥 Grabar: audios de la secuencia del dolor (6, de 1 a 2 min)","nota":"","tipo":"🎙️ Grabar","prio":""},{"id":"3fe3070f2d4f812cb13af2269f019f22","ini":"2026-11-10T20:15:00.000Z","fin":"2026-11-10T22:15:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"📝 Guion: Empieza aquí, los 2 videos (bienvenida y cómo sacarle el jugo) + reglas","nota":"","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f8103b1bbdc1abf4dff49","ini":"2026-11-11T12:00:00.000Z","fin":"2026-11-11T14:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h 15 m","tarea":"💬 Mensaje: programar la secuencia del dolor (9 mensajes con audio)","nota":"0,25 h por mensaje. Del sáb 7 al vie 13, a las 7 pm (el vie 13 son 3).","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81a5964bfb330f08aa71","ini":"2026-11-11T14:00:00.000Z","fin":"2026-11-11T15:30:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🎥 Grabar: testimonio de un founder (Oso, VJ Neon o Leylastar)","nota":"Antes lo conseguía Jorge.","tipo":"🎙️ Grabar","prio":""},{"id":"3fe3070f2d4f815aa4b8d33a286f2633","ini":"2026-11-11T15:30:00.000Z","fin":"2026-11-11T17:15:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h 45 m","tarea":"🎥 Grabar: tercera tanda de análisis Forma y Fondo","nota":"","tipo":"🎙️ Grabar","prio":""},{"id":"3fe3070f2d4f81d2bb16e9178d441284","ini":"2026-11-11T17:30:00.000Z","fin":"2026-11-11T17:30:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"📌 Definir: Ads regulares en escala, costo por persona en el grupo (vie 6)","nota":"","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f810288f9ec8706908a33","ini":"2026-11-11T18:45:00.000Z","fin":"2026-11-11T19:15:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":true,"tent":false,"tiempo":"30 m","tarea":"◆ H6 · 📌 Definir: calentamiento armado","nota":"Listo cuando: horario cerrado, clase anunciada, secuencia programada, testimonio grabado. Si no llega: la secuencia arranca con lo que esté.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f819c86d8f58c9582a455","ini":"2026-11-12T12:00:00.000Z","fin":"2026-11-12T15:00:00.000Z","quien":"Nakari","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"3 h","tarea":"🎞️ Editar: Fundamentos, módulos 3 y 4","nota":"Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f8151b386e117d1cd66f8","ini":"2026-11-14","fin":"2026-11-15","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"3 h","tarea":"📝 Guion: diapositivas de la clase de venta + la hoja del mapa (fin de semana)","nota":"Plan del 8 nov (cierre de la semana). El fin de semana me monto con las diapositivas. La hoja del mapa en PDF pasa a Nakari después.","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f81d9bffcdc068f3e168f","ini":"2026-11-16T21:00:00.000Z","fin":"2026-11-16T22:00:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎥 Grabar: Empieza aquí, los 2 videos","nota":"","tipo":"🎙️ Grabar","prio":""},{"id":"3fe3070f2d4f81b1a6d5f8332962579c","ini":"2026-11-13T12:00:00.000Z","fin":"2026-11-13T15:30:00.000Z","quien":"Nakari","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"3 h 30 m","tarea":"🎞️ Editar: Empieza aquí (2 videos) + la hoja del mapa en PDF","nota":"Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f81e294c8d93651b18f98","ini":"2026-11-13T14:00:00.000Z","fin":"2026-11-13T14:30:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"📌 Definir: montos de la escalera (Aspirante → Empresario)","nota":"Vienen de DespegArt y no están en el vault.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f81c98db5c458fafaee02","ini":"2026-11-13T14:30:00.000Z","fin":"2026-11-13T15:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"30 m","tarea":"📌 Definir: reglas de las clases contra Mindshop","nota":"","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f81c887e2fafc98381995","ini":"2026-11-14T23:00:00.000Z","fin":"2026-11-14T23:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Sáb 14 nov · 7 pm · El Enemigo","nota":"Sale programado (lo programó Nakari el vie 6 nov): 0 h, solo verificar que salió. Texto + nota de voz.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81bb9027f79e844c7df6","ini":"2026-11-15T23:00:00.000Z","fin":"2026-11-15T23:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Dom 15 nov · 7 pm · Momento de éxito","nota":"Sale programado (lo programó Nakari el vie 6 nov): 0 h, solo verificar que salió. Texto + nota de voz.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f818eaf22f1eb5fc9b9e2","ini":"2026-11-16T12:00:00.000Z","fin":"2026-11-16T12:30:00.000Z","quien":"Nakari","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"30 m","tarea":"👀🎞️ Montar: prueba, un amigo entra a Skool y sigue los 3 pasos del DM","nota":"Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"🧩 Montaje","prio":""},{"id":"3fe3070f2d4f81588e0fdffc3a06e2c0","ini":"2026-11-16T16:00:00.000Z","fin":"2026-11-16T18:45:00.000Z","quien":"Carlos","area":"🛒 Carrito","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h 45 m","tarea":"📝 Guion: mensajes del carrito (pasar a tu voz)","nota":"9 mensajes, del vie 13 al lun 23. Antes del mié 11 para que Nakari los programe el jue 12.","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f8125abeff6d0b5c4c2a1","ini":"2026-11-16T18:45:00.000Z","fin":"2026-11-16T20:45:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🔴 En vivo: ensayo de la clase de venta con el cronómetro","nota":"","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f81ec8faadac3c6e83b9c","ini":"2026-11-16T22:00:00.000Z","fin":"2026-11-16T22:30:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":true,"tent":false,"tiempo":"30 m","tarea":"◆ H7 · 📌 Definir: Skool listo y la clase ensayada","nota":"Listo cuando: About, Empieza aquí, Fundamentos 1-4, categorías, Auto DM, ensayo con cronómetro. No se recorta.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f818bbe8dffe8b2dc442f","ini":"2026-11-16T23:00:00.000Z","fin":"2026-11-16T23:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Lun 16 nov · 7 pm · La Polaridad","nota":"Sale programado (lo programó Nakari el vie 6 nov): 0 h, solo verificar que salió. Texto + nota de voz.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f810a8a65f0075e8819f2","ini":"2026-11-17T12:00:00.000Z","fin":"2026-11-17T14:15:00.000Z","quien":"Nakari","area":"🛒 Carrito","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h 15 m","tarea":"💬 Mensaje: programar los mensajes del carrito hasta el lun 30","nota":"0,25 h por mensaje, 9 mensajes. Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f8137894ad2fa073d2fa0","ini":"2026-11-17T23:00:00.000Z","fin":"2026-11-17T23:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Mar 17 nov · 7 pm · Mi peor error","nota":"Sale programado (lo programó Nakari el vie 6 nov): 0 h, solo verificar que salió. Texto + nota de voz.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81898033fb75453713c1","ini":"2026-11-18T23:00:00.000Z","fin":"2026-11-18T23:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Mié 18 nov · 7 pm · El Mito","nota":"Sale programado (lo programó Nakari el vie 6 nov): 0 h, solo verificar que salió. Texto + nota de voz.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f810a9a63dff7d71fcdee","ini":"2026-11-19T23:00:00.000Z","fin":"2026-11-19T23:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Jue 19 nov · 7 pm · El Gran Dolor","nota":"Sale programado (lo programó Nakari el vie 6 nov): 0 h, solo verificar que salió. Texto + nota de voz.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f8144913fd33b201cea5a","ini":"2026-11-20T14:00:00.000Z","fin":"2026-11-20T16:00:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🔴 En vivo: preparar la clase de venta (repaso y prueba técnica)","nota":"YouTube Live no listado: probar el link y la hoja antes.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f8108aaafce3ba29f74f7","ini":"2026-11-20T16:00:00.000Z","fin":"2026-11-20T17:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"📝 Guion: el cuarto perfil creativo (escribirlo o cerrar con tres)","nota":"La clase 1 presenta el Celebrity, el Arquitecto y el Autor.","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f81f29a0cef92e7f0ea08","ini":"2026-11-20T16:00:00.000Z","fin":"2026-11-20T16:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Vie 20 nov · 12 m · Es hoy","nota":"Sale programado con la secuencia del dolor: 0 h, solo verificar que salió.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81499718d688a0cf2a97","ini":"2026-11-20T18:45:00.000Z","fin":"2026-11-20T21:45:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"3 h","tarea":"📝 Guion: materiales de la clase 1 (láminas y la hoja de la propuesta)","nota":"","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f812494c4f94ea9d1beb0","ini":"2026-11-20T23:00:00.000Z","fin":"2026-11-20T23:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Vie 20 nov · 7 pm · Es hoy, la hoja","nota":"Sale programado con la secuencia del dolor: 0 h, solo verificar que salió.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81998b39df67ea86c4ca","ini":"2026-11-20T23:50:00.000Z","fin":"2026-11-21T00:00:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Vie 20 nov · 7:50 pm · Estamos en vivo","nota":"Sale programado con la secuencia del dolor: 0 h, solo verificar que salió.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81ec8fe0e746ffb6e8db","ini":"2026-11-21T00:00:00.000Z","fin":"2026-11-21T02:00:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":true,"tent":false,"tiempo":"2 h","tarea":"◆ H8 · 🔴 En vivo: clase de venta, 8 pm · carrito a $120","nota":"Listo cuando: en vivo a las 8 pm y el carrito abierto a $120. No se mueve. ⚠️ Choca con el BJJ (7:30 a 9 pm) y la pareja (9:30 pm): es la única noche del lanzamiento que no se puede mover.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f8152b5f7d9f5ff426b59","ini":"2026-11-21T02:15:00.000Z","fin":"2026-11-21T02:30:00.000Z","quien":"Nakari","area":"🛒 Carrito","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Vie 20 nov · 10 pm · Después de la clase","nota":"Sale programado (lo programó Nakari el jue 12): 0 h, solo verificar que salió. Hora de envío sugerida, se ajusta al programar.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81ec8d03dc80d773fe11","ini":"2026-11-21T16:00:00.000Z","fin":"2026-11-21T16:15:00.000Z","quien":"Nakari","area":"🛒 Carrito","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Sáb 21 nov · 12 m · Lógica","nota":"Sale programado (lo programó Nakari el jue 12): 0 h, solo verificar que salió. Hora de envío sugerida, se ajusta al programar.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f8167ac91e6e708ec40ab","ini":"2026-11-22T11:00:00.000Z","fin":"2026-11-22T12:00:00.000Z","quien":"Carlos","area":"🛒 Carrito","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"📝 Guion: la carta a mano (foto + texto)","nota":"Se manda el dom 15 en la noche.","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f816d8188e550f133f221","ini":"2026-11-22T16:00:00.000Z","fin":"2026-11-22T16:15:00.000Z","quien":"Nakari","area":"🛒 Carrito","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Dom 22 nov · 12 m · Últimas horas de $120","nota":"Sale programado (lo programó Nakari el jue 12): 0 h, solo verificar que salió. Hora de envío sugerida, se ajusta al programar.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81ee96a8cce386ff1f4e","ini":"2026-11-23T00:00:00.000Z","fin":"2026-11-23T01:00:00.000Z","quien":"Carlos","area":"🛒 Carrito","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🔴 En vivo: live de cierre de tramo, 8 pm · medianoche sube a $150","nota":"1 h en vivo + 30 min de preparación ese día.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f81bab502c6d1b88c8daf","ini":"2026-11-23T01:15:00.000Z","fin":"2026-11-23T01:30:00.000Z","quien":"Nakari","area":"🛒 Carrito","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Dom 22 nov · 9 pm · La carta","nota":"Sale programado (lo programó Nakari el jue 12): 0 h, solo verificar que salió. Hora de envío sugerida, se ajusta al programar.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f8106a65ec04577c6acc8","ini":"2026-11-24T14:00:00.000Z","fin":"2026-11-24T16:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🔴 En vivo: preparar la clase 1 (notas de orador y materiales)","nota":"","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f8178b2e1f39db73ccd50","ini":"2026-11-24T16:00:00.000Z","fin":"2026-11-24T16:15:00.000Z","quien":"Nakari","area":"🛒 Carrito","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Mar 24 nov · 12 m · La clase 1","nota":"Sale programado (lo programó Nakari el jue 12): 0 h, solo verificar que salió. Hora de envío sugerida, se ajusta al programar.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81e7b503c59d43855f8a","ini":"2026-11-24T23:00:00.000Z","fin":"2026-11-25T01:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🔴 Indispensable","listo":false,"hito":true,"tent":false,"tiempo":"2 h","tarea":"◆ H10 · 🔴 En vivo: Creator Season · clase 1 · Entiende el juego (7 a 9 pm)","nota":"Arranca Creator Season · Temporada 1. Listo cuando: materiales y la hoja de la propuesta listos. Ese día la cena va de 6 a 6:45 pm y se usa el bloque de caminar.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f81139c57e6d8b65038ea","ini":"2026-11-25T12:00:00.000Z","fin":"2026-11-25T13:00:00.000Z","quien":"Nakari","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"✅ Publicar: grabación de la clase 1 en el classroom (en 24 h)","nota":"La clase termina el mar 17 a las 9 pm: se sube la mañana del mié 18 (la data dice en 24 h). Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81db930cc99e3baefa95","ini":"2026-11-26T12:00:00.000Z","fin":"2026-11-26T15:45:00.000Z","quien":"Nakari","area":"🏫 Skool y classroom","rel":"🟡 Recortable","listo":false,"hito":false,"tent":false,"tiempo":"3 h 45 m","tarea":"🎞️ Editar: Fundamentos, módulos 5 a 7","nota":"Antes de la clase 2, no antes del 13. Séptimo en la ruta de recorte. Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f81ddb413e2d4435ee62f","ini":"2026-11-26T16:00:00.000Z","fin":"2026-11-26T16:15:00.000Z","quien":"Nakari","area":"🛒 Carrito","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Jue 26 nov · 12 m · Lo que pasó","nota":"Sale programado (lo programó Nakari el jue 12): 0 h, solo verificar que salió. Hora de envío sugerida, se ajusta al programar.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81c093fdca920aacb260","ini":"2026-11-26T23:00:00.000Z","fin":"2026-11-27T00:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🔴 En vivo: análisis de su contenido (jue 26, 7 a 8 pm)","nota":"1 h en vivo + 30 min de preparación ese día. La cena va de 6 a 6:45 pm.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f813ab882eee698bc836a","ini":"2026-11-27T12:00:00.000Z","fin":"2026-11-27T15:45:00.000Z","quien":"Nakari","area":"🏫 Skool y classroom","rel":"🟡 Recortable","listo":false,"hito":false,"tent":false,"tiempo":"3 h 45 m","tarea":"🎞️ Editar: Fundamentos, módulos 8 a 10","nota":"Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f81ea87c3d79555379f0c","ini":"2026-11-27T14:00:00.000Z","fin":"2026-11-27T17:00:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🟡 Recortable","listo":false,"hito":false,"tent":false,"tiempo":"3 h","tarea":"🎥 Grabar: Duplica tu cerebro (3 partes)","nota":"Quinto en la ruta de recorte.","tipo":"🎙️ Grabar","prio":""},{"id":"3fe3070f2d4f81ab8d63d865a3983cf4","ini":"2026-11-28T16:00:00.000Z","fin":"2026-11-28T16:15:00.000Z","quien":"Nakari","area":"🛒 Carrito","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Sáb 28 nov · 12 m · Preguntas frecuentes","nota":"Sale programado (lo programó Nakari el jue 12): 0 h, solo verificar que salió. Hora de envío sugerida, se ajusta al programar.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f815091e2fb0dc8d3ea49","ini":"2026-11-29T16:00:00.000Z","fin":"2026-11-29T16:15:00.000Z","quien":"Nakari","area":"🛒 Carrito","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Dom 29 nov · 12 m · Último día de $150","nota":"Sale programado (lo programó Nakari el jue 12): 0 h, solo verificar que salió. Hora de envío sugerida, se ajusta al programar.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81b7b722cadefd4b6e57","ini":"2026-11-29T22:00:00.000Z","fin":"2026-11-29T23:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🔴 En vivo: preguntas (dom 29, 6 pm)","nota":"A las 6 pm porque a las 8 es el live de cierre. 1 h en vivo + 30 min de preparación. La cena va de 7 a 7:45 pm.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f81518a7cd4c0704f3f4e","ini":"2026-11-30T00:00:00.000Z","fin":"2026-11-30T01:00:00.000Z","quien":"Carlos","area":"🛒 Carrito","rel":"🔴 Indispensable","listo":false,"hito":true,"tent":false,"tiempo":"1 h 30 m","tarea":"◆ H9 · 🔴 En vivo: live de cierre, 8 pm · cierra el carrito del L1 (medianoche → $350)","nota":"Listo cuando: lives a las 8 pm con los cierres de tramo ($150 el dom 15, $350 hoy). 1 h en vivo + 30 min de preparación.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f8176a3d8e4bced2ed416","ini":"2026-11-30T14:00:00.000Z","fin":"2026-11-30T16:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🎥 Grabar: los 6 pares mal y bien para la clase 2","nota":"","tipo":"🎙️ Grabar","prio":""},{"id":"3fe3070f2d4f81bc8412ddd74003b849","ini":"2026-11-30T16:00:00.000Z","fin":"2026-11-30T16:15:00.000Z","quien":"Nakari","area":"🛒 Carrito","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"0 m","tarea":"💬 Mensaje: Lun 30 nov · 12 m · Gracias","nota":"Sale programado (lo programó Nakari el jue 12): 0 h, solo verificar que salió. Hora de envío sugerida, se ajusta al programar.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f8175bf55e9d84ed7dd9e","ini":"2026-12-01T12:00:00.000Z","fin":"2026-12-01T14:00:00.000Z","quien":"Nakari","area":"🏫 Skool y classroom","rel":"🟡 Recortable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"👀🎞️ Montar: Resuelve tu duda (NotebookLM) arriba","nota":"Sexto en la ruta de recorte. Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"🧩 Montaje","prio":""},{"id":"3fe3070f2d4f81e08a3ccde5dd4e4228","ini":"2026-12-01T14:00:00.000Z","fin":"2026-12-01T16:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🔴 En vivo: preparar la clase 2 (notas de orador y materiales)","nota":"","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f81ada2f5c1177d37b258","ini":"2026-12-01T18:45:00.000Z","fin":"2026-12-01T20:45:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"📌 Definir: informe del lanzamiento (CAC y conversión reales)","nota":"Antes lo hacía Jorge.","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f8180a353dbdfadbe8654","ini":"2026-12-01T23:00:00.000Z","fin":"2026-12-02T01:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🔴 En vivo: Creator Season · clase 2 · Estética y criterio (7 a 9 pm)","nota":"La cena va de 6 a 6:45 pm y se usa el bloque de caminar.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f81db956df06b75389575","ini":"2026-12-02T12:00:00.000Z","fin":"2026-12-02T13:00:00.000Z","quien":"Nakari","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"✅ Publicar: grabación de la clase 2 + análisis y preguntas de la semana anterior","nota":"Para H13 (las 12 sesiones grabadas). Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81319a2ed88451dcd980","ini":"2026-12-03T12:00:00.000Z","fin":"2026-12-03T16:30:00.000Z","quien":"Nakari","area":"🏫 Skool y classroom","rel":"🟡 Recortable","listo":false,"hito":false,"tent":false,"tiempo":"4 h 30 m","tarea":"🎞️ Editar: Duplica tu cerebro (3 partes)","nota":"Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"📺 Editar","prio":""},{"id":"3fe3070f2d4f811fb376c53491399ea3","ini":"2026-12-03T23:00:00.000Z","fin":"2026-12-04T00:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🔴 En vivo: análisis de su contenido (jue 3, 7 a 8 pm)","nota":"1 h en vivo + 30 min de preparación ese día. La cena va de 6 a 6:45 pm.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f8171ba09e85d33c22f9c","ini":"2026-12-04T12:00:00.000Z","fin":"2026-12-04T13:30:00.000Z","quien":"Nakari","area":"🏆 Reto","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"👀🎞️ Montar: formulario de iteración","nota":"Si no llega la galería: solo el formulario (H11). Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"🧩 Montaje","prio":""},{"id":"3fe3070f2d4f810fae54dbb8d6053be4","ini":"2026-12-04T13:30:00.000Z","fin":"2026-12-04T15:30:00.000Z","quien":"Nakari","area":"🏆 Reto","rel":"🟡 Recortable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"👀🎞️ Montar: galería de Notion (el muro del reto)","nota":"Último en la ruta de recorte: si no da, va después del 1 dic. Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"🧩 Montaje","prio":""},{"id":"3fe3070f2d4f811aa166cc9fee434b2e","ini":"2026-12-04T14:00:00.000Z","fin":"2026-12-04T16:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"📝 Guion: láminas de la clase 3","nota":"","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f818c8e89c5023e48a18a","ini":"2026-12-06T23:00:00.000Z","fin":"2026-12-07T00:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🔴 En vivo: preguntas (dom 6, 7 a 8 pm)","nota":"1 h en vivo + 30 min de preparación. La cena va de 6 a 6:45 pm.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f81318ca9dc4931054b68","ini":"2026-12-07T14:00:00.000Z","fin":"2026-12-07T15:30:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"📌 Definir: documento de criterios para miembros (nivel 2)","nota":"","tipo":"📌 Decisión","prio":""},{"id":"3fe3070f2d4f819f9bf1dbc52689aea4","ini":"2026-12-08T14:00:00.000Z","fin":"2026-12-08T16:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🔴 En vivo: preparar la clase 3 (notas de orador y materiales)","nota":"","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f811f9e1fc6b03e918061","ini":"2026-12-08T23:00:00.000Z","fin":"2026-12-09T01:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🔴 Indispensable","listo":false,"hito":true,"tent":false,"tiempo":"2 h","tarea":"◆ H11 · 🔴 En vivo: Creator Season · clase 3 · Seduce (7 a 9 pm) · arranca el reto","nota":"Listo cuando: galería de Notion y formulario de iteración funcionando. Si no llega: solo el formulario, la galería después. La cena va de 6 a 6:45 pm.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f8147a5dfee47588f7963","ini":"2026-12-09T12:00:00.000Z","fin":"2026-12-09T13:00:00.000Z","quien":"Nakari","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"✅ Publicar: grabación de la clase 3 + análisis y preguntas de la semana anterior","nota":"Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f8172915cd7190b5ea93d","ini":"2026-12-10T23:00:00.000Z","fin":"2026-12-11T00:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🔴 En vivo: análisis de su contenido (jue 10 dic, 7 a 8 pm)","nota":"1 h en vivo + 30 min de preparación ese día. La cena va de 6 a 6:45 pm.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f817b8daed45f4276042b","ini":"2026-12-11T12:00:00.000Z","fin":"2026-12-11T14:00:00.000Z","quien":"Nakari","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🎨 Diseñar: plantilla de media kit (en Recursos)","nota":"Para la clase 4 (H12). Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"🎨 Diseño","prio":""},{"id":"3fe3070f2d4f813b9fcff99fe0c87981","ini":"2026-12-11T14:00:00.000Z","fin":"2026-12-11T14:15:00.000Z","quien":"Nakari","area":"🏆 Reto","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"15 m","tarea":"💬 Mensaje: recordatorio del primer post de iteración (cierra dom 13, 11:59 pm)","nota":"El post lo hacen los miembros; Carlos lo revisa en los candidatos del lun 7. Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f8175a054dbe9a7b34e13","ini":"2026-12-11T14:00:00.000Z","fin":"2026-12-11T16:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"📝 Guion: láminas de la clase 4","nota":"","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f81e29291cca7d2d528d9","ini":"2026-12-13T23:00:00.000Z","fin":"2026-12-14T00:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🔴 En vivo: preguntas (dom 13 dic, 7 a 8 pm)","nota":"1 h en vivo + 30 min de preparación. La cena va de 6 a 6:45 pm.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f812f80dfd8fe9b756bcf","ini":"2026-12-14T14:00:00.000Z","fin":"2026-12-14T15:00:00.000Z","quien":"Carlos","area":"🏆 Reto","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"💬 Comunidad: reto, candidatos de la semana + encuesta (lun 14 dic)","nota":"","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f81c290dfce4c26753f3b","ini":"2026-12-15T14:00:00.000Z","fin":"2026-12-15T16:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🔴 En vivo: preparar la clase 4 (notas de orador y materiales)","nota":"","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f8168ae56fcbb8eb605e3","ini":"2026-12-15T23:00:00.000Z","fin":"2026-12-16T01:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🔴 Indispensable","listo":false,"hito":true,"tent":false,"tiempo":"2 h","tarea":"◆ H12 · 🔴 En vivo: Creator Season · clase 4 · Consolidación (7 a 9 pm)","nota":"Listo cuando: plantilla de media kit en Recursos. La cena va de 6 a 6:45 pm.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f817aade1e94da82525a4","ini":"2026-12-16T12:00:00.000Z","fin":"2026-12-16T13:00:00.000Z","quien":"Nakari","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"✅ Publicar: grabación de la clase 4 + análisis y preguntas de la semana anterior","nota":"Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"✅ Publicar","prio":""},{"id":"3fe3070f2d4f81a9aff5d0540615871f","ini":"2026-12-17T14:00:00.000Z","fin":"2026-12-17T15:00:00.000Z","quien":"Carlos","area":"🏆 Reto","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"📝 Guion: contenido del 24 y el 31 (posts de la comunidad)","nota":"Fecha límite del contenido programado: dom 20.","tipo":"🎬 Guion","prio":""},{"id":"3fe3070f2d4f81b78d5fcfb9251042ab","ini":"2026-12-17T23:00:00.000Z","fin":"2026-12-18T00:00:00.000Z","quien":"Carlos","area":"🏆 Reto","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🔴 En vivo: análisis + ganador de la semana del reto (jue 17 dic, 7 a 8 pm)","nota":"1 h en vivo + 30 min de preparación ese día. La cena va de 6 a 6:45 pm.","tipo":"🔴 En vivo","prio":""},{"id":"3fe3070f2d4f81abb2f6ff7317b0ed6f","ini":"2026-12-18T12:00:00.000Z","fin":"2026-12-18T12:30:00.000Z","quien":"Nakari","area":"🏆 Reto","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"30 m","tarea":"💬 Mensaje: programar el contenido del 24 y el 31","nota":"Fecha límite: dom 20. Horario por confirmar: desde el 9 nov cambia el horario de Nakari.","tipo":"💬 Comunidad","prio":""},{"id":"3fe3070f2d4f811ba963cda7fddd7410","ini":"2026-12-20T23:00:00.000Z","fin":"2026-12-21T00:00:00.000Z","quien":"Carlos","area":"🎬 Creator Season","rel":"🟠 Importante","listo":false,"hito":true,"tent":false,"tiempo":"1 h 30 m","tarea":"◆ H13 · 🔴 En vivo: preguntas (dom 20 dic, 7 a 8 pm) · cierra el mes en vivo","nota":"Listo cuando: las 12 sesiones dadas y grabadas. 1 h en vivo + 30 min de preparación. La cena va de 6 a 6:45 pm.","tipo":"🔴 En vivo","prio":""},{"id":"a8nov016ee0","ini":"2026-11-11T14:00:00.000Z","fin":"2026-11-11T14:45:00.000Z","quien":"Carlos","area":"📅 Agenda","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"45 m","tarea":"🙋 Asistir: salir a correr","nota":"Plan del 8 nov (cierre de la semana). La semana pasada no entrené ningún día.","tipo":"👤 Agenda","prio":""},{"id":"a8nov022tvs","ini":"2026-11-09T15:30:00.000Z","fin":"2026-11-09T16:30:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎞️ Editar: análisis 1, lo edito yo","nota":"Plan del 8 nov (cierre de la semana). Lo edito yo para subirlo al mediodía y empujar a que la gente siga llenando el formulario.","tipo":"📺 Editar","prio":"P3"},{"id":"a8nov03brbp","ini":"2026-11-10T16:45:00.000Z","fin":"2026-11-10T17:00:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🟠 Importante","listo":true,"hito":false,"tent":false,"tiempo":"15 m","tarea":"💬 Comunidad: encuesta en el grupo, «si pudieras aprender hoy una sola cosa…» (4 opciones)","nota":"Plan del 8 nov (cierre de la semana). Para activar el grupo: cada mensaje que mando saca entre 3 y 5 personas y casi no hay reacciones. Las 4 opciones, sobre creación de contenido; también me orienta para escribir la clase.","tipo":"💬 Comunidad","prio":""},{"id":"a8nov04pm14","ini":"2026-11-09T17:00:00.000Z","fin":"2026-11-09T17:30:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"📌 Definir: revisar los anuncios con push (que estén «Activa», gasto por anuncio y CSV del 8 nov)","nota":"Pendiente del 8 nov (bitácora): revisar que no queden «Cambios sin publicar», cuánto gastó cada anuncio con push y a qué costo por registro, y pasar el CSV del 8 nov al dashboard, el panel y la nota de campañas.","tipo":"📌 Decisión","prio":""},{"id":"a8nov05fxpd","ini":"2026-11-09T18:00:00.000Z","fin":"2026-11-09T19:00:00.000Z","quien":"Carlos","area":"🎟️ Founders","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"💵🤬 Cobrar: los 3 o 4 founders que faltan por pagar","nota":"Plan del 8 nov (cierre de la semana). Founders cerró el sáb 7 con 10 pagos; faltan 3 o 4 por cerrar el pago.","tipo":"💬 Comunidad","prio":""},{"id":"a8nov064ze7","ini":"2026-11-10T22:00:00.000Z","fin":"2026-11-10T22:45:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"45 m","tarea":"📌 Definir: el calentamiento de la semana (qué sale cada día en el grupo)","nota":"Plan del 8 nov (cierre de la semana). Ir activando el grupo y preparar el calentamiento. Mandar menos mensajes y que pidan respuesta.","tipo":"📌 Decisión","prio":""},{"id":"a8nov0720du","ini":"2026-11-09T12:00:00.000Z","fin":"2026-11-09T13:00:00.000Z","quien":"Nakari","area":"🎥 Contenido","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🗂️ Archivar: todos los videos de TikTok","nota":"Plan del 8 nov (cierre de la semana).","tipo":"🧩 Montaje","prio":""},{"id":"a8nov08idbp","ini":"2026-11-10T14:00:00.000Z","fin":"2026-11-10T15:00:00.000Z","quien":"Carlos","area":"📅 Agenda","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🙋 Asistir: corte de pelo y barba","nota":"Para estar bien arreglado para la pauta con Moi del miércoles.","tipo":"👤 Agenda","prio":""},{"id":"a8nov098wms","ini":"2026-11-10T16:00:00.000Z","fin":"2026-11-10T17:30:00.000Z","quien":"Carlos","area":"📅 Agenda","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🙋 Asistir: sacar la cédula","nota":"Hora aproximada: mediodía.","tipo":"👤 Agenda","prio":""},{"id":"a8nov108ppa","ini":"2026-11-10T17:30:00.000Z","fin":"2026-11-10T18:00:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"30 m","tarea":"📌 Definir: revisar los push y el presupuesto (Latam Profesionales a $32 desde el mié 11)","nota":"Plan del 8 nov (bitácora): si el anuncio con push sale más barato, se le sube el porcentaje; se quita si Vnzla Profesionales pasa de $0,45 o Vnzla General de $0,40. Vnzla Creativos vuelve a $28 si pasa de ~$0,40 o de 1,4 de frecuencia diaria.","tipo":"📌 Decisión","prio":""},{"id":"a8nov110tfe","ini":"2026-11-10T18:00:00.000Z","fin":"2026-11-10T19:00:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎥 Grabar: video de Notion, cómo organizar el calendario","nota":"Corrección del 8 nov: no es revisar algo en Notion, es grabar el video de Notion (cómo organizar el calendario y todo eso). Va el martes.","tipo":"🎙️ Grabar","prio":""},{"id":"a8nov12o5iv","ini":"2026-11-10T19:45:00.000Z","fin":"2026-11-10T20:30:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"45 m","tarea":"📌 Definir: qué contenido falta en Skool y los pregrabados de Recursos","nota":"Plan del 8 nov (cierre de la semana). Revisar qué otro contenido pregrabado va a haber (Recursos: checklists, plantilla de media kit, guía de equipo, apps). Meta: el jue 12, todo lo interno que depende de mí, grabado.","tipo":"📌 Decisión","prio":""},{"id":"a8nov13x8m5","ini":"2026-11-10T20:30:00.000Z","fin":"2026-11-10T22:00:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"👀 Revisar: la edición de Nakari de Forma y Fondo + 🎨 la miniatura","nota":"Plan del 8 nov (cierre de la semana). Curar lo que haga Nakari y hacer la miniatura. Antes de la miniatura, leer la Guía maestra de criterios YouTube.","tipo":"🎨 Diseño","prio":""},{"id":"a8nov148okx","ini":"2026-11-10T22:30:00.000Z","fin":"2026-11-10T23:30:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"📌 Definir: organizar la pauta con Moi y qué video de la secuencia sale de ahí","nota":"Plan del 8 nov (cierre de la semana). Aprovechar que va a estar el peliculeo para sacar un video para la secuencia.","tipo":"📌 Decisión","prio":""},{"id":"a8nov15ml71","ini":"2026-11-11T00:30:00.000Z","fin":"2026-11-11T00:45:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"15 m","tarea":"💬 Mensaje: Forma y Fondo en el grupo (mar 10, noche)","nota":"Plan del 8 nov (cierre de la semana). Después de la encuesta del lunes, el video del martes en la noche.","tipo":"💬 Comunidad","prio":""},{"id":"a8nov16q0gw","ini":"2026-11-12T22:00:00.000Z","fin":"2026-11-12T22:30:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":true,"tent":false,"tiempo":"30 m","tarea":"◆ Meta · 📌 Definir: lo interno de la comunidad, grabado (menos el VSL)","nota":"Plan del 8 nov (cierre de la semana). Que esté cerrado prácticamente todo lo que depende de mí de lo que va a haber adentro de la comunidad cuando salga la clase gratuita. Grabar entre el lunes y el martes.","tipo":"📌 Decisión","prio":""},{"id":"a8nov1717j3","ini":"2026-11-12","fin":"2026-11-13","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"","tarea":"📝 Guion: preparar la clase con los datos del formulario de análisis","nota":"Plan del 8 nov (cierre de la semana). Entre el jueves y el viernes, con todos los datos.","tipo":"🎬 Guion","prio":""},{"id":"c13nov01","ini":"2026-11-13T13:00:00.000Z","fin":"2026-11-13T13:30:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"30 m","tarea":"📲 Escribirle a: testimonios y permiso de la founder","nota":"Oso: escaleta y fecha (lun 16). Bunny: que lo grabe en video (1 min). Leila: último mensaje, si no responde el lunes se suelta. Neon: avisarle que el lunes le pido otra toma con escaleta. Founder: permiso para publicar su video comparado con uno mío. Nakari: lo que programa hoy y el fin de semana.","tipo":"💬 Comunidad","prio":"P1"},{"id":"c13nov02","ini":"2026-11-13T13:30:00.000Z","fin":"2026-11-13T13:45:00.000Z","quien":"Carlos","area":"📣 Anuncios","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"15 m","tarea":"📌 Definir: límites de gasto ($300 más hasta el vie 20) + exportar el CSV","nota":"Vnzla Creativos $17/día (+$120), Latam Creativos $17 (+$120), Vnzla General $8 (+$60). El límite de Meta incluye lo ya gastado: sumarle lo nuevo al gastado de «Máximo».","tipo":"📌 Decisión","prio":""},{"id":"c13nov03","ini":"2026-11-13T13:45:00.000Z","fin":"2026-11-13T14:45:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎥 Grabar: los 6 audios de la secuencia del dolor y pasárselos a Nakari","nota":"Venían del jue 12. Sin ellos Nakari no puede programar los mensajes.","tipo":"🎙️ Grabar","prio":"P1"},{"id":"c13nov04","ini":"2026-11-13T15:00:00.000Z","fin":"2026-11-13T17:00:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"📝 Guion: cerrar el guion de la clase (relativamente final)","nota":"Bloque profundo, sin teléfono. Desde aquí se escucha y se ensaya.","tipo":"🎬 Guion","prio":"P1"},{"id":"c13nov05","ini":"2026-11-13T17:00:00.000Z","fin":"2026-11-13T18:00:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎧 Escuchar el guion de la clase (1 de 4), en el almuerzo","nota":"","tipo":"🎬 Guion","prio":""},{"id":"c13nov06","ini":"2026-11-13T18:00:00.000Z","fin":"2026-11-13T19:00:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🔴 Indispensable","listo":true,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎥 Grabar: bienvenidas y pasarlas a todos los grupos","nota":"","tipo":"🎙️ Grabar","prio":"P2"},{"id":"c13nov07","ini":"2026-11-13T19:00:00.000Z","fin":"2026-11-13T19:30:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"30 m","tarea":"💬 Comunidad: revisar los grupos (perfiles falsos y aviso antiestafa en cada descripción)","nota":"Aviso de Luque: «solo los admins somos contacto oficial; nunca te vamos a llamar ni pedir códigos o QR».","tipo":"💬 Comunidad","prio":""},{"id":"c13nov08","ini":"2026-11-13T19:45:00.000Z","fin":"2026-11-13T21:45:00.000Z","quien":"Carlos","area":"💬 Grupos","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🎥 Grabar: 6 análisis Forma y Fondo (4 para Nakari, fin de semana)","nota":"","tipo":"🎙️ Grabar","prio":"P2"},{"id":"c13nov09","ini":"2026-11-13T21:45:00.000Z","fin":"2026-11-13T22:30:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"45 m","tarea":"🎞️ Editar: cortar el testimonio de Neon (30 a 60 s, respaldo)","nota":"","tipo":"📺 Editar","prio":""},{"id":"c13nov10","ini":"2026-11-13T22:30:00.000Z","fin":"2026-11-13T23:30:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎧 Escuchar el guion de la clase (2 de 4), en la cena","nota":"","tipo":"🎬 Guion","prio":""},{"id":"c13nov11","ini":"2026-11-13T23:30:00.000Z","fin":"2026-11-14T01:00:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🟠 Importante","listo":false,"hito":false,"tent":true,"tiempo":"1 h 30 m","tarea":"🎨 Diseñar: borrador 0 de las diapositivas (si queda energía)","nota":"Si no da, pasa al sábado.","tipo":"🎨 Diseño","prio":""},{"id":"c14nov01","ini":"2026-11-14T12:00:00.000Z","fin":"2026-11-14T13:00:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎧 Escuchar el guion de la clase (3 de 4)","nota":"","tipo":"🎬 Guion","prio":""},{"id":"c14nov02","ini":"2026-11-14T17:00:00.000Z","fin":"2026-11-14T21:00:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"4 h","tarea":"🎥 Grabar y editar: Forma y Fondo (sale el domingo)","nota":"Guion V4. Sale el dom 15.","tipo":"🎙️ Grabar","prio":"P1"},{"id":"c14nov03","ini":"2026-11-14T16:00:00.000Z","fin":"2026-11-14T16:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"15 m","tarea":"✅ Publicar: análisis en los grupos (1 y 2 de 4)","nota":"","tipo":"✅ Publicar","prio":""},{"id":"c14nov04","ini":"2026-11-14T22:00:00.000Z","fin":"2026-11-14T23:00:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"🎧 Escuchar el guion de la clase (4 de 4)","nota":"","tipo":"🎬 Guion","prio":""},{"id":"c15nov01","ini":"2026-11-15T13:00:00.000Z","fin":"2026-11-15T15:00:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🔴 En vivo: ensayo 1 de la clase, grabado en OBS","nota":"Escena real (cámara + diapositivas), .mkv, audio en pistas separadas.","tipo":"🔴 En vivo","prio":"P1"},{"id":"c15nov02","ini":"2026-11-15T15:00:00.000Z","fin":"2026-11-15T16:00:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h","tarea":"📌 Definir: autocrítica del ensayo 1 (verlo a 1,5x) y ajustes","nota":"Planilla: duración por bloque, trabas, transiciones, apertura, oferta, muletillas, energía, 3 cambios.","tipo":"📌 Decisión","prio":""},{"id":"c15nov03","ini":"2026-11-15T16:00:00.000Z","fin":"2026-11-15T16:15:00.000Z","quien":"Nakari","area":"💬 Grupos","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"15 m","tarea":"✅ Publicar: análisis en los grupos (3 y 4 de 4)","nota":"","tipo":"✅ Publicar","prio":""},{"id":"c15nov04","ini":"2026-11-15T22:00:00.000Z","fin":"2026-11-15T22:30:00.000Z","quien":"Nakari","area":"🎥 Contenido","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"30 m","tarea":"✅ Publicar: Forma y Fondo en YouTube + mensaje al grupo","nota":"","tipo":"✅ Publicar","prio":""},{"id":"c15nov05","ini":"2026-11-15T23:30:00.000Z","fin":"2026-11-16T01:00:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"1 h 30 m","tarea":"🔴 En vivo: ensayo 2, solo los bloques flojos (OBS)","nota":"","tipo":"🔴 En vivo","prio":""},{"id":"c16nov01","ini":"2026-11-16T12:00:00.000Z","fin":"2026-11-16T16:00:00.000Z","quien":"Carlos","area":"🎥 Contenido","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"4 h","tarea":"🎥 Grabar y editar: video de la founder (su video de 10 mil contra uno mío de 3 millones)","nota":"Para Carlos Ditron, con el link de registro a la clase y mención a ClipsDitron en TikTok. Enfoque: así la ayudé a mejorar. Mostrárselo antes de publicar. Su video puede ser uno de los 2 de la demo de la clase (min 50 a 58).","tipo":"🎙️ Grabar","prio":"P2"},{"id":"c16nov02","ini":"2026-11-16T22:30:00.000Z","fin":"2026-11-16T23:15:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"45 m","tarea":"🧩 Montaje: prueba técnica (live no listado de 15 min, iPhone por USB) + crear el YouTube Live del viernes","nota":"Instalar Apple Devices o iTunes en la PC. El link del live va en el mensaje de las 7:50 pm del viernes.","tipo":"🧩 Montaje","prio":"P1"},{"id":"c17nov01","ini":"2026-11-17T13:00:00.000Z","fin":"2026-11-17T16:00:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"3 h","tarea":"🎨 Diseñar: diapositivas finales + la hoja del mapa en PDF","nota":"","tipo":"🎨 Diseño","prio":"P1"},{"id":"c17nov02","ini":"2026-11-17T16:00:00.000Z","fin":"2026-11-17T16:30:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"30 m","tarea":"📲 Escribirle a: permiso para los 2 videos de la demo","nota":"","tipo":"💬 Comunidad","prio":""},{"id":"c17nov03","ini":"2026-11-17T18:45:00.000Z","fin":"2026-11-17T20:45:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🔴 En vivo: ensayo 3 de la clase, grabado en OBS","nota":"","tipo":"🔴 En vivo","prio":""},{"id":"c17nov04","ini":"2026-11-17T23:30:00.000Z","fin":"2026-11-17T23:45:00.000Z","quien":"Nakari","area":"🎥 Contenido","rel":"🟠 Importante","listo":false,"hito":false,"tent":false,"tiempo":"15 m","tarea":"✅ Publicar: video de la founder en Carlos Ditron (con link de registro)","nota":"","tipo":"✅ Publicar","prio":""},{"id":"c18nov01","ini":"2026-11-18T13:00:00.000Z","fin":"2026-11-18T15:00:00.000Z","quien":"Carlos","area":"🏫 Skool y classroom","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🎥 Grabar: video de la About page de Skool (3 a 5 min) y subirlo","nota":"Intro → Skool por dentro → autoridad → urgencia ($120 hasta el dom 22, $150 hasta el mar 1 dic, después $350) → cómo entrar (Join, o Zelle / Pago Móvil). Mientras no esté, va el video de founders.","tipo":"🎙️ Grabar","prio":"P1"},{"id":"c18nov02","ini":"2026-11-18T18:45:00.000Z","fin":"2026-11-18T20:45:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"2 h","tarea":"🔴 En vivo: ensayo 4 completo con cronómetro","nota":"","tipo":"🔴 En vivo","prio":""},{"id":"c19nov01","ini":"2026-11-20T00:00:00.000Z","fin":"2026-11-20T01:45:00.000Z","quien":"Carlos","area":"🎤 Clase de venta","rel":"🔴 Indispensable","listo":false,"hito":false,"tent":false,"tiempo":"1 h 45 m","tarea":"🔴 En vivo: ensayo general a las 8 pm (setup, conexión y link reales)","nota":"Sirve también de prueba técnica final.","tipo":"🔴 En vivo","prio":"P1"}],"sugs":{"s01":"aplicada","s02":"aplicada","s04":"aplicada","s05":"descartada","s06":"aplicada"}}</script>
+<script id="main">
+(function(){
+"use strict";
+var RESET=':root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}';
+var ESQUELETO='<div class="wrap"><header class="top"><div style="display:flex;gap:12px;align-items:baseline;flex-wrap:wrap"><h1>Tareas del Team</h1><span class="estado" id="estado"></span></div>'+
+  '<div class="mes"><div class="seg" role="group" aria-label="Tamaño del calendario"><button id="menos" aria-label="Achicar el calendario">A−</button><button id="mas" aria-label="Agrandar el calendario">A+</button></div>'+
+  '<div class="seg" role="group" aria-label="Vista"><button data-modo="calendario">📅 Calendario</button><button data-modo="tablero">🗂️ Tablero</button><button data-modo="dia">☑️ Día</button></div><button class="btn" id="hoy">Hoy</button><button class="btn" id="ver-sugs">💡 Sugerencias</button><button class="btn solid" id="abrir-dictado">🎙️ Agregar por voz</button></div></header>'+
+  '<div class="filtros" id="filtros"></div><div id="prios"></div><div id="marco"><div id="vista"></div></div><div id="tablero" hidden></div><div id="diavista" hidden></div></div><aside class="panel" id="panel" hidden></aside>';
+
+var AREAS=[ // [clave, valor guardado, color, etiqueta]
+ ["F","🎟️ Founders","founders","🎟️ Founders"],["AF","🎟️ Founders","adsf","🎟️ Ads founders"],["A","📣 Anuncios","anuncios","📣 Ads regulares"],
+ ["G","💬 Grupos","grupos","💬 Grupos"],["C","🎥 Contenido","contenido","🎥 Contenido"],["S","🏫 Skool y classroom","skool","🏫 Skool y classroom"],
+ ["V","🎤 Clase de venta","clase","🎤 Clase de venta"],["K","🛒 Carrito","carrito","🛒 Carrito"],["T","🎬 Creator Season","season","🎬 Creator Season"],
+ ["R","🏆 Reto","reto","🏆 Reto"],["E","👥 Equipo","equipo","👥 Equipo"],["D","📅 Agenda","agenda","📅 Agenda"],["L","🗺️ L2 en adelante","l2","🗺️ L2 en adelante"]];
+var AREA_POR_CLAVE={}; AREAS.forEach(function(a){AREA_POR_CLAVE[a[0]]=a;});
+var VALORES_AREA=["🎟️ Founders","📣 Anuncios","💬 Grupos","🎥 Contenido","🏫 Skool y classroom","🎤 Clase de venta","🛒 Carrito","🎬 Creator Season","🏆 Reto","👥 Equipo","📅 Agenda","🗺️ L2 en adelante"];
+var REL=["🔴 Indispensable","🟠 Importante","🟡 Recortable","⚪ Descartable"];
+var TIPOS=["🎬 Guion","🎙️ Grabar","📺 Editar","✅ Publicar","🎨 Diseño","🧩 Montaje","💬 Comunidad","🔴 En vivo","📌 Decisión","👤 Agenda"];
+var TIPO_VER={"🎬 Guion":"📝 Guion","🎙️ Grabar":"🎥 Grabar","📺 Editar":"🎞️ Editar","🧩 Montaje":"👀🎞️ Montaje","👤 Agenda":"🙋 Agenda"};
+var EMO=[["🎬 Guion:","📝 Guion:"],["🎙️ Grabar:","🎥 Grabar:"],["🎙 Grabar:","🎥 Grabar:"],["📺 Editar:","🎞️ Editar:"],["🧩 Montar:","👀🎞️ Montar:"],["✍️ Escribirle a:","📲 Escribirle a:"],["💳 Cobrar:","💵🤬 Cobrar:"],["👤 Asistir:","🙋 Asistir:"],["🔔 Recordar:","🚨 Recordar:"],["📖 Leer:","👀 Leer:"]];
+var DIAS=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"], DIAS_L=["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+var MESES=["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+
+/* ---------- fechas: todo en hora de Venezuela (UTC-4) ---------- */
+function pad(n){return String(n).padStart(2,"0");}
+function aVE(d){return new Date(d.getTime()-4*3600e3);}
+function isoDia(d){return d.getUTCFullYear()+"-"+pad(d.getUTCMonth()+1)+"-"+pad(d.getUTCDate());}
+function hora12(d){var h=d.getUTCHours(),m=d.getUTCMinutes();return (h%12||12)+(m?":"+pad(m):"")+(h<12?"a":"p");}
+function hoyVE(){return isoDia(aVE(new Date()));}
+function sumarDias(k,n){var p=k.split("-");return isoDia(new Date(Date.UTC(+p[0],+p[1]-1,+p[2]+n)));}
+function diaSemana(k){var p=k.split("-");return new Date(Date.UTC(+p[0],+p[1]-1,+p[2])).getUTCDay();}
+function domingoDe(k){return sumarDias(k,-diaSemana(k));}
+function difDias(a,b){return Math.round((Date.parse(b)-Date.parse(a))/864e5);}
+function aFecha(s){return new Date(String(s).replace(" ","T").replace(/Z?$/,"Z"));}
+function parseFecha(s){
+  if(!s) return null; s=String(s).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return {dia:s,todo:true};
+  var d=aFecha(s); if(isNaN(d)) return null;
+  var v=aVE(d); return {dia:isoDia(v),hora:hora12(v),orden:v.getUTCHours()*60+v.getUTCMinutes(),utc:d};
+}
+function utcDe(fecha,hora){var p=fecha.split("-"),h=(hora||"00:00").split(":");return new Date(Date.UTC(+p[0],+p[1]-1,+p[2],+h[0]+4,+h[1]));}
+function correr(s,dias){if(!s) return "";if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return sumarDias(s,dias);return new Date(aFecha(s).getTime()+dias*864e5).toISOString();}
+function textoTiempo(min){min=Math.max(0,Math.round(+min||0));var h=Math.floor(min/60),m=min%60;return (h?h+" h":"")+(h&&m?" ":"")+(m||!h?m+" m":"");}
+function fechaLarga(k){var p=k.split("-");return DIAS_L[diaSemana(k)]+" "+(+p[2])+" de "+MESES[+p[1]-1];}
+function nombreMes(k){var p=k.split("-");return MESES[+p[1]-1]+" "+p[0];}
+
+/* ---------- estado guardado en la propia página ---------- */
+var guardado0=JSON.parse(document.getElementById("state").textContent);
+var S=JSON.parse(JSON.stringify(guardado0));
+var artifact=null, modo="cargando", soloLectura=false, sample=null;
+var TAREAS=[];
+function emojis(s){s=String(s||"");EMO.forEach(function(e){s=s.split(e[0]).join(e[1]);});return s;}
+function catDe(t){
+  if(/Ads founders/i.test(t.tarea)||(t.area==="🎟️ Founders"&&/\bAds?\b/.test(t.tarea))) return "AF";
+  for(var i=0;i<AREAS.length;i++) if(AREAS[i][1]===t.area&&AREAS[i][0]!=="AF") return AREAS[i][0];
+  return "D";
+}
+function norm(t){
+  t.tarea=emojis(t.tarea);
+  var f=parseFecha(t.ini); t.dia=f?f.dia:null; t.hora=f&&!f.todo?f.hora:""; t.orden=f&&!f.todo?f.orden:-1;
+  var g=parseFecha(t.fin); t.diaFin=t.dia; t.horaFin="";
+  if(g&&t.dia){
+    if(g.todo){ if(g.dia>t.dia) t.diaFin=g.dia; }
+    else { if(g.dia>t.dia&&!(sumarDias(t.dia,1)===g.dia&&g.orden<360)) t.diaFin=g.dia; if(t.fin!==t.ini) t.horaFin=g.hora; }
+  }
+  if(t.dia&&t.diaFin>sumarDias(t.dia,62)) t.diaFin=sumarDias(t.dia,62);
+  t.cat=catDe(t); return t;
+}
+function cargarDeEstado(){TAREAS=S.tareas.map(function(t){return norm(t);});}
+cargarDeEstado();
+
+var guardado={}; try{guardado=JSON.parse(localStorage.getItem("tareas-team-filtros")||"{}")||{};}catch(e){}
+var ocultas=guardado.ocultas||{}, persona=guardado.persona||"todos", verListas=guardado.verListas!==false, zoom=+guardado.zoom||1;
+/* listas en el calendario: "ambas" | "ocultar" | "solo" (un toque en el chip pasa a la siguiente) */
+var listasModo=["ambas","ocultar","solo"].indexOf(guardado.listasModo)>=0?guardado.listasModo:(guardado.verListas===false?"ocultar":"ambas");
+var vistaModo=["tablero","dia"].indexOf(guardado.vistaModo)>=0?guardado.vistaModo:"calendario", estadoVer=guardado.estadoVer||"pendientes", diasVer=guardado.diasVer||{ayer:true,hoy:true,man:true,semana:false}, centro=null;
+var tabAgrupar=["cat","dia"].indexOf(guardado.tabAgrupar)>=0?guardado.tabAgrupar:"cat", tabDia=guardado.tabDia||"", tabCentro=null, ordenM=guardado.ordenM||{};
+var hoy=hoyVE(), panel=null, edicion=null, borradores=[], dictadoTexto="", ocupado=false, aviso=null, arr=null, suprimirClick=false, pinch=null;
+function guardarFiltros(){try{localStorage.setItem("tareas-team-filtros",JSON.stringify({ocultas:ocultas,persona:persona,verListas:verListas,listasModo:listasModo,zoom:zoom,vistaModo:vistaModo,estadoVer:estadoVer,diasVer:diasVer,tabAgrupar:tabAgrupar,tabDia:tabDia,ordenM:ordenM}));}catch(e){}}
+function colorCat(k){var a=AREA_POR_CLAVE[k];return "var(--a-"+(a?a[2]:"agenda")+")";}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+function buscar(id){for(var i=0;i<TAREAS.length;i++) if(TAREAS[i].id===id) return TAREAS[i]; return null;}
+function visible(t){
+  if(!t.dia) return false;
+  if(persona!=="todos"&&t.quien!==persona) return false;
+  if(ocultas[t.cat]) return false;
+  if(listasModo==="ocultar"&&t.listo) return false;
+  if(listasModo==="solo"&&!t.listo) return false;
+  return true;
+}
+var RANGO_P={P1:0,P2:1,P3:2};
+function ordenar(a,b){
+  var ma=ordenM[a.id], mb=ordenM[b.id];
+  if(ma!=null&&mb!=null&&ma!==mb) return ma-mb;
+  var pa=a.prio in RANGO_P?RANGO_P[a.prio]:9, pb=b.prio in RANGO_P?RANGO_P[b.prio]:9;
+  return pa-pb||a.orden-b.orden;
+}
+function porDia(){
+  var m={};
+  TAREAS.forEach(function(t){if(!visible(t))return;for(var k=t.dia;k<=t.diaFin;k=sumarDias(k,1))(m[k]=m[k]||[]).push(t);});
+  Object.keys(m).forEach(function(k){m[k].sort(ordenar);}); return m;
+}
+/* rango continuo: desde la primera semana con tareas hasta, como mínimo, el sábado que cierra el 30 nov */
+var desde, hasta;
+function calcularRango(){
+  var min=hoy; TAREAS.forEach(function(t){if(t.dia&&t.dia>="2026-10-01"&&t.dia<min) min=t.dia;});
+  desde=domingoDe(min); var f=sumarDias(hoy,28); if(f<"2026-11-30") f="2026-11-30"; hasta=sumarDias(domingoDe(f),6);
+}
+calcularRango();
+
+/* ---------- guardar: la página se vuelve a publicar con el estado nuevo ---------- */
+function documento(){
+  var json=JSON.stringify(S).replace(/</g,"\\u003c");
+  var content='<title>Tareas del Team</title>\n<meta name="claude:viewport-fit-sides" content="cover">\n'+
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,700&family=JetBrains+Mono:wght@500&display=swap">\n'+
+    '<style id="css">'+document.getElementById("css").textContent+'</style>\n<div id="raiz"></div>\n'+
+    '<script type="application/json" id="state">'+json+'<\/script>\n<script id="main">'+document.getElementById("main").textContent+'<\/script>';
+  return '<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>'+RESET+'</style></head><body>'+content+'</body></html>';
+}
+var timerGuardar=null, guardando=false, GIST_ID="031fa98994211495252c52b91a15d725", ghKey="";
+try{
+  var mHash=(location.hash||"").match(/[#&]k=([^&]+)/);
+  if(mHash&&mHash[1]){
+    ghKey=decodeURIComponent(mHash[1]);
+    localStorage.setItem("tareas-team-gh-key",ghKey);
+    if(history.replaceState) history.replaceState(null,"",location.pathname+location.search);
+  } else {
+    ghKey=localStorage.getItem("tareas-team-gh-key")||"";
+  }
+}catch(e){}
+function sincronizarEstado(){
+  S.tareas=TAREAS.map(function(t){return {id:t.id,ini:t.ini,fin:t.fin||"",quien:t.quien,area:t.area,rel:t.rel||"",listo:!!t.listo,hito:!!t.hito,tent:!!t.tent,tiempo:t.tiempo||"",tarea:t.tarea,nota:t.nota||"",tipo:t.tipo||"",prio:t.prio||""};});
+  S.ordenM=ordenM; S.ts=Date.now();
+}
+function guardarNube(){
+  if(!GIST_ID||!ghKey) return Promise.resolve(false);
+  var body=JSON.stringify({files:{"tareas-team-estado.json":{content:JSON.stringify(S)}}});
+  return fetch("https://api.github.com/gists/"+GIST_ID,{
+    method:"PATCH",
+    headers:{"Authorization":"Bearer "+ghKey,"Accept":"application/vnd.github+json","Content-Type":"application/json"},
+    body:body
+  }).then(function(r){return r.ok;});
+}
+function cargarNube(silencioso){
+  if(!GIST_ID||guardando) return;
+  if(!silencioso) pintarEstado("Sincronizando con la nube…");
+  fetch("https://api.github.com/gists/"+GIST_ID+"?t="+Date.now(),{
+    headers:ghKey?{"Authorization":"Bearer "+ghKey,"Accept":"application/vnd.github+json"}:{"Accept":"application/vnd.github+json"}
+  }).then(function(r){return r.ok?r.json():null;}).then(function(d){
+    if(!d||!d.files||!d.files["tareas-team-estado.json"]) return;
+    var rem=JSON.parse(d.files["tareas-team-estado.json"].content);
+    if(rem&&Array.isArray(rem.tareas)){
+      S=rem; if(rem.ordenM){ordenM=rem.ordenM;guardarFiltros();}
+      try{localStorage.setItem("tareas-team-estado",JSON.stringify(S));}catch(e){}
+      cargarDeEstado(); pintar();
+      pintarEstado(ghKey?"☁️ Sincronizado (PC · iPad · iPhone)":"☁️ Vista sincronizada (abre el link con llave para guardar cambios)");
+    }
+  }).catch(function(){});
+}
+function guardar(){
+  if(soloLectura) return;
+  sincronizarEstado();
+  try{localStorage.setItem("tareas-team-estado",JSON.stringify(S));}catch(e){}
+  if(modo==="local"){
+    if(ghKey){
+      clearTimeout(timerGuardar); pintarEstado("☁️ Guardando en la nube…");
+      timerGuardar=setTimeout(function(){
+        guardando=true;
+        guardarNube().then(function(ok){
+          guardando=false;
+          pintarEstado(ok?"☁️ Guardado y sincronizado":"Guardado en este navegador (sin conexión a la nube)",!ok);
+        }).catch(function(){guardando=false;pintarEstado("Guardado en este navegador");});
+      },450);
+      return;
+    }
+    pintarEstado("Guardado en este navegador");return;
+  }
+  clearTimeout(timerGuardar); pintarEstado("Guardando…");
+  timerGuardar=setTimeout(function(){
+    if(!artifact) return; guardando=true; recordarVista();
+    artifact.publish(documento()).then(function(){guardando=false;pintarEstado("Guardado");}).catch(function(e){
+      guardando=false; var c=e&&e.code;
+      if(c==="conflict") return;
+      if(c==="not_writer"||c==="not_granted"||c==="consent_required"){soloLectura=true;pintarEstado("Solo lectura: no tienes permiso para editar este calendario.",true);return;}
+      pintarEstado(c==="rate_limited"?"Se guardó hace muy poco; vuelve a intentar en unos segundos.":"No se pudo guardar. Vuelve a intentar.",true);
+    });
+  },900);
+}
+function puedeEditar(){if(soloLectura){toast("No tienes permiso para editar este calendario.");return false;}return true;}
+
+/* ---------- pintar ---------- */
+function corto(s){return String(s).replace(/^(◆ H\d+ · )?(\S+) [^:]{1,22}: /,"$1$2 ");}
+function chipTarea(t,dia){
+  var multi=t.diaFin>t.dia, h;
+  if(multi){var i=difDias(t.dia,dia||t.dia)+1,n=difDias(t.dia,t.diaFin)+1;h="día "+i+"/"+n+(t.hora&&dia===t.dia?" · "+t.hora:"");}
+  else h=t.hora||"todo el día";
+  var pc=t.prio==="P1"?"var(--p1)":t.prio==="P2"?"var(--p2)":t.prio==="P3"?"var(--p3)":"";
+  return '<button class="t'+(t.listo?" listo":"")+(t.hito?" hito":"")+(t.tent?" tent":"")+(t.prio?" prio":"")+'" data-id="'+esc(t.id)+'" style="--c:'+colorCat(t.cat)+';--pc:var(--c-'+(t.quien==="Nakari"?"nakari":"carlos")+')'+(pc?';--pcol:'+pc:'')+'" title="'+esc(t.tarea)+'">'+
+    '<span class="m"><span class="h">'+h+'</span><span>'+(t.prio?'<span class="pb '+t.prio.toLowerCase()+'">'+t.prio+'</span>':'')+'<span class="p">'+(t.quien==="Nakari"?"N":"C")+'</span></span></span><span class="n">'+esc(corto(t.tarea))+'</span></button>';
+}
+function pintarFiltros(){
+  var h='<div class="seg" role="group" aria-label="Persona">';
+  [["todos","Todos"],["Carlos","Carlos"],["Nakari","Nakari"]].forEach(function(p){h+='<button data-persona="'+p[0]+'" aria-pressed="'+(persona===p[0])+'">'+p[1]+'</button>';});
+  h+='</div><span class="sep"></span>';
+  AREAS.forEach(function(a){h+='<button class="chip" data-area="'+a[0]+'" aria-pressed="'+!ocultas[a[0]]+'" style="--c:var(--a-'+a[2]+')"><i></i>'+esc(a[3])+'</button>';});
+  var LM={ambas:["Listas: se ven todas","var(--muted)"],ocultar:["Listas: ocultas","var(--danger)"],solo:["Solo las listas","var(--accent)"]}[listasModo];
+  h+='<span class="sep"></span><button class="chip" data-listas aria-pressed="true" title="Toca para cambiar: todas → ocultar listas → solo listas" style="--c:'+LM[1]+'"><i></i>✅ '+LM[0]+'</button>';
+  h+='<span class="ayuda">&nbsp;Un toque oculta un área · dos toques deja solo esa</span>';
+  document.getElementById("filtros").innerHTML=h;
+}
+function diaFoco(){
+  if(panel&&panel.tipo==="dia") return panel.dia;
+  if(panel&&panel.tipo==="tarea"){var t=buscar(panel.id);if(t) return t.dia;}
+  return hoy;
+}
+function pintarPrioridades(){
+  var dia=diaFoco(), h='<div class="prios"><div class="prios-t">🎯 Prioridades<small>'+fechaLarga(dia)+'</small></div>';
+  ["Carlos","Nakari"].forEach(function(q){
+    h+='<div class="pcol"><b>'+q+'</b>';
+    [1,2,3].forEach(function(n){
+      var t=null; TAREAS.forEach(function(x){if(!t&&x.quien===q&&x.prio==="P"+n&&x.dia===dia) t=x;});
+      h+='<div class="pslot"><span class="pb p'+n+'">P'+n+'</span>'+(t?chipTarea(t,dia):'<span class="vacio">sin asignar</span>')+'</div>';
+    });
+    h+='</div>';
+  });
+  h+='</div>';
+  document.getElementById("prios").innerHTML=h;
+}
+function pintarVista(){
+  var mapa=porDia(), angosto=window.matchMedia("(max-width: 700px)").matches, h='<button class="btn mas-semanas" data-antes>Ver semanas anteriores</button>';
+  if(angosto){
+    h+='<div class="agenda">'; var mesAct="";
+    for(var k=desde;k<=hasta;k=sumarDias(k,1)){
+      if(k.slice(0,7)!==mesAct){mesAct=k.slice(0,7);h+='<h2 class="banda-m">'+nombreMes(k)+'</h2>';}
+      var ts=mapa[k]; if(!ts&&k!==hoy) continue;
+      h+='<section class="grupo'+(k===hoy?" hoy":"")+'" data-dia="'+k+'"><h3>'+DIAS_L[diaSemana(k)]+' '+(+k.slice(8))+'</h3>'+(ts||[]).map(function(t){return chipTarea(t,k);}).join("")+'</section>';
+    }
+    h+='</div>';
+  } else {
+    h+='<div class="cal"><div class="dows">'+DIAS.map(function(x){return"<span>"+x+"</span>";}).join("")+'</div><div class="semana">';
+    for(var c=desde;c<=hasta;c=sumarDias(c,1)){
+      var dow=diaSemana(c);
+      if(dow===0){
+        var uno=null; for(var i=0;i<7;i++){var x=sumarDias(c,i);if(x.slice(8)==="01")uno=x;}
+        if(c===desde) h+='<div class="banda">'+nombreMes(c)+(uno&&uno.slice(0,7)!==c.slice(0,7)?' · '+nombreMes(uno):'')+'</div>';
+        else if(uno) h+='<div class="banda">'+nombreMes(uno)+'</div>';
+      }
+      var ts2=mapa[c]||[], carga=ts2.filter(function(t){return !t.listo;}).length, d=+c.slice(8);
+      h+='<div class="dia'+(dow===6?" sab":"")+(c===hoy?" hoy":"")+(panel&&panel.dia===c?" sel":"")+'" data-dia="'+c+'"><div class="num">'+(d===1?'<b class="m1">1 '+MESES[+c.slice(5,7)-1].slice(0,3)+'</b>':'<b>'+d+'</b>')+(carga?'<small>'+carga+'</small>':'')+'</div>'+ts2.map(function(t){return chipTarea(t,c);}).join("")+'</div>';
+    }
+    h+='</div></div>';
+  }
+  h+='<button class="btn mas-semanas" data-despues>Ver 4 semanas más</button>';
+  var v=document.getElementById("vista"); v.innerHTML=h; aplicarZoom();
+}
+function opts(lista,sel,ver){return lista.map(function(x){return'<option value="'+esc(x)+'"'+(x===sel?" selected":"")+'>'+esc(ver&&ver[x]||x)+'</option>';}).join("");}
+var VER_AREA={"📣 Anuncios":"📣 Anuncios (Ads)"};
+function htmlBorrador(b,i){
+  var at=function(c){return 'id="b'+i+'-'+c+'" data-b="'+i+'" data-campo="'+c+'"';};
+  return '<div class="borrador" style="--c:'+colorCat(catDe({tarea:b.tarea,area:b.area}))+'"><input '+at("tarea")+' value="'+esc(b.tarea)+'" aria-label="Tarea">'+
+    '<div class="g"><select '+at("quien")+' aria-label="Quién">'+opts(["Carlos","Nakari"],b.quien)+'</select><select '+at("area")+' aria-label="Área">'+opts(VALORES_AREA,b.area,VER_AREA)+'</select></div>'+
+    '<div class="g3"><label>Fecha<input '+at("fecha")+' type="date" value="'+esc(b.fecha)+'"></label><label>Hora<input '+at("hora")+' type="time" value="'+esc(b.hora||"")+'"></label><label>Minutos<input '+at("duracion_min")+' type="number" min="0" step="15" value="'+esc(b.duracion_min)+'"></label></div>'+
+    '<label>Termina el (si dura varios días)<input '+at("fechaFin")+' type="date" value="'+esc(b.fechaFin||"")+'"></label>'+
+    '<div class="g"><select '+at("tipo")+' aria-label="Tipo"><option value="">Tipo…</option>'+opts(TIPOS,b.tipo,TIPO_VER)+'</select><select '+at("relevancia")+' aria-label="Relevancia">'+opts(REL,b.relevancia)+'</select></div>'+
+    (i!=="e"&&b.nota?'<p class="ayuda">'+esc(b.nota)+'</p>':'')+(i==="e"?'':'<button class="btn quitar" data-quitar="'+i+'">Quitar</button>')+'</div>';
+}
+function htmlPrioBtns(t){
+  return '<div class="prio-btns" role="group" aria-label="Prioridad del día"><span class="ayuda">Prioridad del día:</span>'+["P1","P2","P3"].map(function(p){return '<button class="'+p.toLowerCase()+'" data-prio="'+p+'" aria-pressed="'+(t.prio===p)+'">'+p+'</button>';}).join("")+(t.prio?'<button data-prio="">✕</button>':'')+'</div>';
+}
+function pintarPanel(){
+  var el=document.getElementById("panel");
+  if(!panel){el.hidden=true;document.body.classList.remove("con-panel");anclarPanel();aplicarZoom();return;}
+  el.hidden=false; document.body.classList.add("con-panel"); var h="";
+  var msg=aviso?'<div class="msg'+(aviso.err?" err":"")+'">'+esc(aviso.txt)+'</div>':'';
+  if(panel.tipo==="dia"){
+    var ts=(porDia()[panel.dia]||[]);
+    h='<div class="fila"><h2 class="fecha">'+fechaLarga(panel.dia)+'</h2><button class="btn" data-cerrar>Cerrar</button></div><div class="lista">'+(ts.length?ts.map(function(t){return chipTarea(t,panel.dia);}).join(""):'<p class="vacio">Nada este día con estos filtros.</p>')+'</div>';
+  } else if(panel.tipo==="tarea"){
+    var t=buscar(panel.id);
+    if(!t){panel=null;return pintarPanel();}
+    var multi=t.diaFin>t.dia;
+    h='<div class="fila"><button class="btn" data-dia-de="'+esc(t.dia)+'">‹ '+fechaLarga(t.dia)+'</button><button class="btn" data-cerrar>Cerrar</button></div><div class="det"><h3>'+esc(t.tarea)+'</h3>'+htmlPrioBtns(t)+'<dl>'+
+      '<dt>Quién</dt><dd><span class="seg" role="group" aria-label="Responsable">'+["Carlos","Nakari"].map(function(q){return '<button data-quien="'+q+'" aria-pressed="'+(t.quien===q)+'">'+q+'</button>';}).join("")+'</span></dd>'+
+      '<dt>Cuándo</dt><dd>'+fechaLarga(t.dia)+(t.hora?', '+t.hora:'')+(multi?' → '+fechaLarga(t.diaFin)+(t.horaFin?', '+t.horaFin:''):(t.horaFin?' a '+t.horaFin:''))+'</dd>'+
+      (t.tiempo?'<dt>Tiempo</dt><dd>'+esc(t.tiempo)+'</dd>':'')+
+      '<dt>Área</dt><dd><span class="pill" style="--c:'+colorCat(t.cat)+'"><i></i>'+esc(AREA_POR_CLAVE[t.cat][3])+'</span></dd>'+
+      (t.tipo?'<dt>Tipo</dt><dd>'+esc(TIPO_VER[t.tipo]||t.tipo)+'</dd>':'')+
+      (t.rel?'<dt>Relevancia</dt><dd>'+esc(t.rel)+'</dd>':'')+
+      '<dt>Estado</dt><dd>'+(t.listo?"✅ Lista":"Pendiente")+(t.hito?" · ◆ Hito":"")+(t.tent?" · Tentativa":"")+'</dd></dl>'+
+      (t.nota?'<div class="nota">'+esc(t.nota)+'</div>':'')+
+      (/^[0-9a-f]{32}$/.test(t.id)?'<a href="https://app.notion.com/p/'+esc(t.id)+'" target="_blank" rel="noopener">Abrir en Notion ↗</a>':'');
+    if(panel.editando) h+=htmlBorrador(edicion,"e")+'<div class="botones"><button class="btn" data-cancelar-ed>Cancelar</button><button class="btn solid" data-guardar-ed>Guardar cambios</button></div>';
+    else if(panel.borrar===1) h+='<div class="confirmar"><b>¿Borrar esta tarea?</b><div class="botones"><button class="btn" data-borrar-no>Cancelar</button><button class="btn peligro" data-borrar-si>Sí, quiero borrarla</button></div></div>';
+    else if(panel.borrar===2) h+='<div class="confirmar"><b>Última confirmación:</b> se borra «'+esc(corto(t.tarea))+'» de este calendario.<div class="botones"><button class="btn" data-borrar-no>Cancelar</button><button class="btn peligro solid" data-borrar-final>Borrar definitivamente</button></div></div>';
+    else h+='<div class="botones"><button class="btn peligro" data-borrar>Borrar</button><button class="btn" data-editar>Editar</button><button class="btn solid" data-listo>'+(t.listo?"Marcar pendiente":"Marcar lista")+'</button></div>';
+    h+=msg+'<div class="atajos">Atajos con teclado: <kbd>1</kbd> <kbd>2</kbd> <kbd>3</kbd> prioridad · <kbd>0</kbd> quitarla · <kbd>E</kbd> editar · <kbd>L</kbd> lista · <kbd>Supr</kbd> borrar · <kbd>Alt</kbd>+<kbd>←</kbd>/<kbd>→</kbd> mover un día · <kbd>Esc</kbd> cerrar</div></div>';
+    msg="";
+  } else if(panel.tipo==="dictado"){
+    h='<div class="fila"><h2>Agregar por voz</h2><button class="btn" data-cerrar>Cerrar</button></div><div class="dictado">'+
+      '<label for="dictado">Dicta las tareas</label><textarea id="dictado" placeholder="Ej.: Mañana a las 9 Nakari edita el clip de Moi, dos horas, prioridad. Del viernes al domingo corren los Ads regulares al VSL.">'+esc(dictadoTexto)+'</textarea>'+
+      '<p class="ayuda">Toca el micrófono del teclado del iPad y habla. Claude separa las tareas y les pone fecha, hora, persona y área; tú las revisas antes de agregarlas.</p>'+
+      '<button class="btn solid" data-convertir'+(ocupado||!sample?" disabled":"")+'>'+(ocupado==="convirtiendo"?"Convirtiendo…":"Convertir en tareas")+'</button>'+
+      (!sample?'<p class="ayuda">Para convertir el dictado, esta página necesita poder usar Claude (ábrela en claude.ai).</p>':'')+
+      borradores.map(htmlBorrador).join("")+
+      (borradores.length?'<button class="btn solid" data-guardar>Agregar '+borradores.length+(borradores.length===1?" tarea":" tareas")+' al calendario</button>':'')+'</div>';
+  } else if(panel.tipo==="sugs"){
+    h='<div class="fila"><h2>💡 Sugerencias contra el Calendario L1</h2><button class="btn" data-cerrar>Cerrar</button></div><p class="ayuda">Comparé estas tareas con el Calendario del L1 (la estrella polar). Aplica las que apruebes; nada cambia hasta que tocas Aplicar.</p>'+
+      SUGS.map(htmlSug).join("");
+  }
+  el.innerHTML=h+msg; anclarPanel(); aplicarZoom();
+}
+function nombreTarea(id){var t=buscar(id);return t?corto(t.tarea)+" ("+fechaLarga(t.dia).replace(/ de \w+$/,"")+")":"(ya no está)";}
+function htmlSug(s){
+  var est=(S.sugs||{})[s.id], ids=[];
+  (s.acciones||[]).forEach(function(a){var id=a.mover||a.fechas||a.listo||a.borrar;if(id&&ids.indexOf(id)<0)ids.push(id);});
+  var borra=(s.acciones||[]).some(function(a){return a.borrar;});
+  return '<div class="sug'+(s.acciones?"":" nota")+(est?" hecha":"")+'"><h4>'+esc(s.titulo)+'</h4><p>'+esc(s.porque)+'</p>'+
+    (ids.length?'<ul>'+ids.map(function(id){return '<li>'+esc(nombreTarea(id))+'</li>';}).join("")+'</ul>':'')+
+    (est?'<p><b>'+(est==="aplicada"?"✓ Aplicada":est==="vista"?"✓ Vista":"Descartada")+'</b></p>':
+      '<div class="botones">'+(s.acciones?'<button class="btn" data-sug-no="'+s.id+'">Descartar</button><button class="btn solid'+(borra?" peligro":"")+'" data-sug-si="'+s.id+'">'+(panel.confirmarSug===s.id?"Toca otra vez para confirmar":"Aplicar")+'</button>':'<button class="btn" data-sug-vista="'+s.id+'">Entendido</button>')+'</div>')+'</div>';
+}
+/* ---------- tablero: columnas por categoría (tipo de trabajo) o por día, checklist ordenado por prioridad ---------- */
+var COLS=[ // [clave, título, color, tipo guardado, horas sugeridas si la tarea no trae tiempo]
+ ["plan","🧭 Planificación","#5B7BD5","📌 Decisión",30],["guion","📝 Escritura y guion","#9B59D0","🎬 Guion",60],["diseno","🎨 Diseño","#E0658F","🎨 Diseño",90],
+ ["grabar","🎥 Grabar","#F08C2E","🎙️ Grabar",120],["editar","🎞️ Edición","#2BA3B8","📺 Editar",150],["montaje","👀🎞️ Montaje","#8A9A3A","🧩 Montaje",60],
+ ["publicar","✅ Publicar","#22A06B","✅ Publicar",15],["comunidad","💬 Comunidad y mensajes","#D4A72C","💬 Comunidad",30],["vivo","🔴 En vivo","#C2357E","🔴 En vivo",120],
+ ["agenda","🙋 Agenda","#8A948E","👤 Agenda",60],["otras","📦 Otras","#9AA0A6","📦 Otras",60]];
+var COL_POR_TIPO={}, COL_POR_CLAVE={}; COLS.forEach(function(c){if(c[3]) COL_POR_TIPO[c[3]]=c; COL_POR_CLAVE[c[0]]=c;});
+function colDe(t){
+  if(t.tipo&&COL_POR_TIPO[t.tipo]) return COL_POR_TIPO[t.tipo];
+  var s=String(t.tarea||""), m=function(r){return r.test(s);}, k="otras";
+  if(m(/Guion:|Escrib(ir|e):/i)) k="guion"; else if(m(/Grabar:/i)) k="grabar"; else if(m(/Editar:|Pietaje/i)) k="editar";
+  else if(m(/Diseñar:|🎨/)) k="diseno"; else if(m(/Montar:/i)) k="montaje"; else if(m(/Publicar:/i)) k="publicar";
+  else if(m(/Comunidad:|Mensaje:|Escribirle a:/i)) k="comunidad"; else if(m(/En vivo:/i)) k="vivo"; else if(m(/Asistir:/i)) k="agenda";
+  else if(m(/Definir:|Entender:|Reunirme con:|Revisar:/i)) k="plan";
+  for(var i=0;i<COLS.length;i++) if(COLS[i][0]===k) return COLS[i];
+  return COLS[COLS.length-1];
+}
+function tiempoDe(t,c){
+  var s=String(t.tiempo||"").replace(/<[^>]*>/g," ").replace(/\s+/g," ").trim().replace(/^(\d+)\s*H$/i,"$1 h");
+  return s?s:textoTiempo(c[4])+" (sugerido)";
+}
+function urgente(t){return !t.listo&&t.dia&&t.dia<=sumarDias(hoy,1);}
+function rangoRel(t){var i=REL.indexOf(t.rel);return i<0?1:i;}
+function ordenTablero(a,b){
+  if(!!a.listo!==!!b.listo) return a.listo?1:-1;
+  var ma=ordenM[a.id], mb=ordenM[b.id];
+  if(ma!=null&&mb!=null&&ma!==mb) return ma-mb;
+  if(a.listo) return (b.dia||"")<(a.dia||"")?-1:1;
+  var ua=urgente(a), ub=urgente(b);
+  if(ua!==ub) return ua?-1:1;
+  var da=a.dia||"9999", db=b.dia||"9999";
+  if(ua) return da<db?-1:da>db?1:rangoRel(a)-rangoRel(b)||a.orden-b.orden;
+  return rangoRel(a)-rangoRel(b)||(da<db?-1:da>db?1:0)||a.orden-b.orden;
+}
+function cuandoDe(t){
+  if(!t.dia) return '<span>sin fecha</span>';
+  var man=sumarDias(hoy,1), et=t.dia===hoy?"Hoy":t.dia===man?"Mañana":DIAS[diaSemana(t.dia)]+" "+(+t.dia.slice(8))+" "+MESES[+t.dia.slice(5,7)-1].slice(0,3);
+  if(t.hora) et+=" · "+t.hora;
+  if(!t.listo&&t.dia<hoy) return '<span class="u">⚠ Atrasada · '+et+'</span>';
+  if(urgente(t)) return '<span class="u">🔥 '+et+'</span>';
+  return '<span>📅 '+et+'</span>';
+}
+function tarjetaTablero(t,c,n,diaCol){
+  var urg=urgente(t);
+  return '<div class="tc'+(urg?" urg":"")+(t.listo?" listo":"")+'" data-id="'+esc(t.id)+'" data-dia="'+esc(diaCol||t.dia||"")+'" style="--k:'+c[2]+'">'+
+    '<button class="chk" role="checkbox" aria-checked="'+!!t.listo+'" aria-label="'+(t.listo?"Marcar pendiente":"Marcar lista")+'" data-check="'+esc(t.id)+'">'+(t.listo?"✓":"")+'</button>'+
+    '<button class="tcb" data-id="'+esc(t.id)+'" title="'+esc(t.tarea)+'"><span class="tn">'+esc(t.tarea)+'</span><span class="tm">'+cuandoDe(t)+'<span>⏱ '+esc(tiempoDe(t,c))+'</span><span class="pq" style="--pc:var(--c-'+(t.quien==="Nakari"?"nakari":"carlos")+')">'+(t.quien==="Nakari"?"Nakari":"Carlos")+'</span></span></button>'+
+    '<span class="nump">'+(t.listo?"":n)+'</span></div>';
+}
+function centroTab(){return tabCentro||hoyVE();}
+function lunesDe(k){var d=diaSemana(k);return sumarDias(k,d===0?-6:1-d);}
+function pintarTablero(){
+  var el=document.getElementById("tablero"); if(!el) return;
+  var ct=centroTab(), lun=lunesDe(ct), diasSem=[];
+  for(var i=0;i<7;i++) diasSem.push(sumarDias(lun,i));
+  var conteoDia={};
+  TAREAS.forEach(function(t){
+    if(!t.dia) return;
+    if(persona!=="todos"&&t.quien!==persona) return;
+    if(ocultas[t.cat]) return;
+    if(estadoVer==="pendientes"&&t.listo) return;
+    if(estadoVer==="listas"&&!t.listo) return;
+    var fin=t.diaFin||t.dia;
+    for(var k=t.dia;k<=fin;k=sumarDias(k,1)) conteoDia[k]=(conteoDia[k]||0)+1;
+  });
+  var h='<div class="tab-top"><div class="seg" role="group" aria-label="Estado">'+[["pendientes","Por hacer"],["listas","Listas"],["todas","Todas"]].map(function(e){return '<button data-estado="'+e[0]+'" aria-pressed="'+(estadoVer===e[0])+'">'+e[1]+'</button>';}).join("")+'</div>'+
+    '<div class="seg" role="group" aria-label="Columnas del tablero">'+[["cat","🗂️ Por categoría"],["dia","📅 Por día"]].map(function(m){return '<button data-tab-agrupar="'+m[0]+'" aria-pressed="'+(tabAgrupar===m[0])+'">'+m[1]+'</button>';}).join("")+'</div>'+
+    '<p class="ayuda">Arrastra cualquier tarjeta a otra columna o a los días de abajo para moverla (ej. del martes al miércoles). Usa la rueda horizontal del ratón para recorrer el tablero.</p>'+
+    '<div class="tab-dias"><div class="seg" role="group" aria-label="Semana del tablero"><button data-tab-correr="-7" title="Semana anterior">‹</button><button data-tab-correr="7" title="Semana siguiente">›</button></div>';
+  if(tabAgrupar==="cat"){
+    h+='<button class="tab-dia" data-tab-dia="" aria-pressed="'+(!tabDia)+'">Todos los días</button>';
+  }
+  diasSem.forEach(function(k){
+    var n=conteoDia[k]||0, esHoy=k===hoyVE(), nom=DIAS[diaSemana(k)]+" "+(+k.slice(8))+" "+MESES[+k.slice(5,7)-1].slice(0,3);
+    h+='<button class="tab-dia'+(esHoy?" hoy":"")+'" data-tab-dia="'+k+'" data-drop-dia="'+k+'" aria-pressed="'+(tabAgrupar==="cat"&&tabDia===k)+'" title="Arrastra aquí una tarjeta para moverla al '+esc(fechaLarga(k))+(tabAgrupar==="cat"?" · Clic para filtrar ese día":"")+'">'+(esHoy?"Hoy · ":"")+nom+(n?' <small>('+n+')</small>':'')+'</button>';
+  });
+  h+='</div></div><div class="tablero">';
+  var hay=false;
+  if(tabAgrupar==="dia"){
+    diasSem.forEach(function(k){
+      var ts=[];
+      TAREAS.forEach(function(t){
+        if(!t.dia) return;
+        if(persona!=="todos"&&t.quien!==persona) return;
+        if(ocultas[t.cat]) return;
+        if(estadoVer==="pendientes"&&t.listo) return;
+        if(estadoVer==="listas"&&!t.listo) return;
+        var fin=t.diaFin||t.dia;
+        if(k>=t.dia&&k<=fin) ts.push(t);
+      });
+      hay=true;
+      ts.sort(ordenar);
+      var pend=ts.filter(function(t){return !t.listo;}).length, n=0, sep=false, esHoy=k===hoyVE();
+      var colColor=esHoy?"var(--accent)":"var(--a-equipo)";
+      h+='<section class="col'+(esHoy?" hoy-col":"")+'" data-drop-dia="'+k+'" style="--k:'+colColor+'" aria-label="'+esc(fechaLarga(k))+'"><h3>'+esc(nombreCorto(k)+" · "+DIAS[diaSemana(k)]+" "+(+k.slice(8)))+'<small>'+(ts.length?(pend?pend+" por hacer":"todo listo"):"sin tareas")+'</small></h3>';
+      if(!ts.length){
+        h+='<p class="vacio">Arrastra tareas aquí para moverlas a este día.</p>';
+      } else {
+        ts.forEach(function(t){
+          if(t.listo&&!sep&&pend&&estadoVer==="todas"){sep=true;h+='<p class="sep-listas">Listas</p>';}
+          if(!t.listo) n++;
+          h+=tarjetaTablero(t,colDe(t),n,k);
+        });
+      }
+      h+='</section>';
+    });
+  } else {
+    var grupos={};
+    TAREAS.forEach(function(t){
+      if(persona!=="todos"&&t.quien!==persona) return;
+      if(ocultas[t.cat]) return;
+      if(estadoVer==="pendientes"&&t.listo) return;
+      if(estadoVer==="listas"&&!t.listo) return;
+      if(tabDia){
+        if(!t.dia) return;
+        var fin=t.diaFin||t.dia;
+        if(tabDia<t.dia||tabDia>fin) return;
+      }
+      var c=colDe(t); (grupos[c[0]]=grupos[c[0]]||[]).push(t);
+    });
+    COLS.forEach(function(c){
+      var ts=grupos[c[0]]; if(!ts||!ts.length) return; hay=true;
+      ts.sort(ordenTablero);
+      var pend=ts.filter(function(t){return !t.listo;}).length, n=0, sep=false;
+      h+='<section class="col" data-drop-col="'+c[0]+'" style="--k:'+c[2]+'" aria-label="'+esc(c[1])+'"><h3>'+esc(c[1])+'<small>'+(pend?pend+" por hacer":"todo listo")+'</small></h3>';
+      ts.forEach(function(t){
+        if(t.listo&&!sep&&pend&&estadoVer==="todas"){sep=true;h+='<p class="sep-listas">Listas</p>';}
+        if(!t.listo) n++;
+        h+=tarjetaTablero(t,c,n,tabDia||t.dia);
+      });
+      h+='</section>';
+    });
+  }
+  h+=(hay?'':'<p class="vacio">Nada con estos filtros.</p>')+'</div>';
+  el.innerHTML=h;
+}
+/* ---------- vista Día: checklist de ayer, hoy y mañana (o semana completa), por prioridad y luego por hora ---------- */
+function centroDia(){return centro||hoyVE();}
+function nombreCorto(k){var h=hoyVE();if(k===h)return "Hoy";if(k===sumarDias(h,-1))return "Ayer";if(k===sumarDias(h,1))return "Mañana";return DIAS[diaSemana(k)]+" "+(+k.slice(8));}
+function filaDia(t,k){
+  var sel=panel&&panel.tipo==="tarea"&&panel.id===t.id, multi=t.diaFin>t.dia, h;
+  if(multi){h="día "+(difDias(t.dia,k)+1)+"/"+(difDias(t.dia,t.diaFin)+1)+(t.hora&&k===t.dia?" · "+t.hora:"");}
+  else h=t.hora?t.hora+(t.horaFin?" a "+t.horaFin:""):"todo el día";
+  return '<div class="dr'+(t.listo?" listo":"")+(sel?" sel":"")+'" data-id="'+esc(t.id)+'" data-dia="'+esc(k)+'" style="--c:'+colorCat(t.cat)+'">'+
+    '<button class="chk" role="checkbox" aria-checked="'+!!t.listo+'" aria-label="'+(t.listo?"Marcar pendiente":"Marcar lista")+'" data-check="'+esc(t.id)+'">'+(t.listo?"✓":"")+'</button>'+
+    '<button class="drb" data-id="'+esc(t.id)+'" data-dd="'+k+'"><span class="dh">'+(t.prio?'<span class="pb '+t.prio.toLowerCase()+'">'+t.prio+'</span>':'')+'<span>'+h+'</span>'+
+    '<span class="q" style="--pc:var(--c-'+(t.quien==="Nakari"?"nakari":"carlos")+')">'+(t.quien==="Nakari"?"Nakari":"Carlos")+'</span>'+(t.tiempo?'<span>⏱ '+esc(String(t.tiempo).replace(/<[^>]*>/g,""))+'</span>':'')+'</span>'+
+    '<span class="dn">'+esc(t.tarea)+'</span></button></div>';
+}
+function pintarDias(){
+  var el=document.getElementById("diavista"); if(!el) return;
+  var c0=centroDia(), mapa=porDia();
+  var dias=[["ayer",sumarDias(c0,-1)],["hoy",c0],["man",sumarDias(c0,1)]];
+  var h='<div class="dv-top"><div class="seg" role="group" aria-label="Mover los días"><button data-correr="-1" aria-label="Un día antes">‹</button><button data-correr="1" aria-label="Un día después">›</button></div>';
+  dias.forEach(function(d){h+='<button class="vchk" role="checkbox" aria-checked="'+(!diasVer.semana&&!!diasVer[d[0]])+'" data-ver="'+d[0]+'" data-drop-dia="'+d[1]+'"><span class="box">'+(!diasVer.semana&&diasVer[d[0]]?"✓":"")+'</span>'+nombreCorto(d[1])+' · '+fechaLarga(d[1]).replace(/^(\S+) (\d+) de (\S+)$/,function(m,a,b,c){return a.slice(0,3)+" "+b+" "+c.slice(0,3);})+'</button>';});
+  h+='<button class="vchk" role="checkbox" aria-checked="'+!!diasVer.semana+'" data-ver-semana="1"><span class="box">'+(diasVer.semana?"✓":"")+'</span>↔ Semana (7 días)</button>';
+  h+='<p class="ayuda">Arrastra cualquier actividad de una columna a otra (ej. del martes al miércoles) o dentro del mismo día. Usa la rueda horizontal del ratón para mover las columnas.</p></div>';
+  var cols=[];
+  if(diasVer.semana){
+    var lun=lunesDe(c0);
+    for(var i=0;i<7;i++){var kd=sumarDias(lun,i); cols.push([kd===c0?"hoy":"sem",kd]);}
+  } else {
+    cols=dias.filter(function(d){return diasVer[d[0]];});
+  }
+  if(!cols.length){el.innerHTML=h+'<p class="vacio">Marca al menos un día para ver sus tareas.</p>';return;}
+  h+='<div class="dcols" style="--n:'+cols.length+'">';
+  cols.forEach(function(d){
+    var k=d[1], ts=mapa[k]||[], pend=ts.filter(function(t){return !t.listo;}).length;
+    h+='<section class="dcol'+(k===hoyVE()?" hoy":"")+(d[0]==="hoy"&&cols.length>1?" centro":"")+'" data-drop-dia="'+k+'" aria-label="'+esc(fechaLarga(k))+'"><h3>'+fechaLarga(k).replace(/^./,function(c){return c.toUpperCase();})+'<small>'+(ts.length?(pend?pend+" por hacer":"todo listo")+" · "+ts.length:"")+'</small></h3>'+
+      (ts.length?ts.map(function(t){return filaDia(t,k);}).join(""):'<p class="vacio">Nada este día con estos filtros (arrastra aquí para mover).</p>')+
+      '</section>';
+  });
+  el.innerHTML=h+'</div>';
+}
+function pintarModo(){
+  var tab=vistaModo==="tablero", cal=vistaModo==="calendario", m=document.getElementById("marco"), tb=document.getElementById("tablero"), pr=document.getElementById("prios"), dv=document.getElementById("diavista");
+  if(m) m.hidden=!cal; if(tb) tb.hidden=!tab; if(pr) pr.hidden=!cal; if(dv) dv.hidden=vistaModo!=="dia";
+  Array.prototype.forEach.call(document.querySelectorAll("[data-modo]"),function(b){b.setAttribute("aria-pressed",String(b.dataset.modo===vistaModo));});
+}
+function pintarEstado(txt,err){var e=document.getElementById("estado");if(!e)return;e.textContent=txt;e.classList.toggle("err",!!err);}
+function pintarBotonSugs(){var n=SUGS.filter(function(s){return !(S.sugs||{})[s.id];}).length;var b=document.getElementById("ver-sugs");if(b)b.textContent="💡 Sugerencias"+(n?" ("+n+")":"");}
+function pintar(){pintarFiltros();pintarPrioridades();pintarVista();pintarTablero();pintarDias();pintarModo();pintarPanel();pintarBotonSugs();}
+
+var toastTimer=null, ultimoToast="";
+/* al guardar, la página se recarga sola con la versión nueva: se recuerda dónde estabas para volver ahí */
+function recordarVista(){
+  var pe=document.getElementById("panel");
+  try{localStorage.setItem("tareas-team-vista",JSON.stringify({panel:panel?{tipo:panel.tipo,id:panel.id,dia:panel.dia}:null,x:window.scrollX,y:window.scrollY,ps:pe?pe.scrollTop:0,desde:desde,hasta:hasta,toast:ultimoToast,ts:Date.now()}));}catch(e){}
+}
+function leerVista(){
+  try{var v=JSON.parse(localStorage.getItem("tareas-team-vista")||"null");localStorage.removeItem("tareas-team-vista");if(v&&Date.now()-v.ts<120000) return v;}catch(e){}
+  return null;
+}
+function toast(txt,deshacer){
+  ultimoToast=txt;
+  var v=document.querySelector(".toast"); if(v) v.remove(); clearTimeout(toastTimer);
+  var d=document.createElement("div"); d.className="toast"; d.setAttribute("role","status"); d.textContent=txt;
+  if(deshacer){var b=document.createElement("button");b.textContent="Deshacer";b.onclick=function(){d.remove();deshacer();};d.appendChild(b);}
+  document.body.appendChild(d); toastTimer=setTimeout(function(){d.remove();},deshacer?7000:4000);
+}
+
+/* ---------- cambios ---------- */
+function moverTarea(id,nuevoDia,msgExtra){
+  var t=buscar(id); if(!t||!nuevoDia||t.dia===nuevoDia||!puedeEditar()) return;
+  var antes={ini:t.ini,fin:t.fin};
+  if(!t.dia){t.ini=nuevoDia;t.fin="";}
+  else {var dias=difDias(t.dia,nuevoDia); t.ini=correr(t.ini,dias); t.fin=correr(t.fin,dias);}
+  norm(t); guardar(); pintar();
+  toast("Movida al "+fechaLarga(t.dia)+".",function(){t.ini=antes.ini;t.fin=antes.fin;norm(t);guardar();pintar();});
+}
+function cambiarColumnaTarea(id,claveCol){
+  var t=buscar(id), c=COL_POR_CLAVE[claveCol]; if(!t||!c||!puedeEditar()) return;
+  var actual=colDe(t); if(actual&&actual[0]===claveCol) return;
+  var tipoAntes=t.tipo;
+  t.tipo=c[3]||"📦 Otras"; norm(t); guardar(); pintar();
+  toast("Movida a "+c[1]+".",function(){t.tipo=tipoAntes;norm(t);guardar();pintar();});
+}
+function reordenarEnContenedor(id,sobreId,contenedor,sinPintar){
+  if(!id||!sobreId||id===sobreId||!contenedor) return false;
+  var els=Array.prototype.slice.call(contenedor.querySelectorAll(".tc[data-id],.dr[data-id],.t[data-id]"));
+  var ids=els.map(function(e){return e.dataset.id;}).filter(function(x){return x&&x!==id;});
+  var pos=ids.indexOf(sobreId); if(pos<0) return false;
+  ids.splice(pos,0,id);
+  ids.forEach(function(k,idx){ordenM[k]=idx+1;});
+  guardarFiltros(); if(!sinPintar) pintar();
+  return true;
+}
+function ponerPrio(t,p){
+  if(!puedeEditar()) return;
+  if(p) TAREAS.forEach(function(o){if(o!==t&&o.prio===p&&o.quien===t.quien&&o.dia===t.dia) o.prio="";});
+  t.prio=p; guardar(); pintar();
+  toast(p?p+" de "+t.quien+" para el "+fechaLarga(t.dia)+".":"Prioridad quitada.");
+}
+function valoresEdicion(t){
+  var f=parseFecha(t.ini), g=parseFecha(t.fin), h="", dur=60;
+  if(f&&!f.todo){var v=aVE(f.utc);h=pad(v.getUTCHours())+":"+pad(v.getUTCMinutes());if(g&&!g.todo){var d0=(g.utc-f.utc)/60000;dur=Math.max(0,Math.round(t.diaFin>t.dia?d0-difDias(t.dia,t.diaFin)*1440:d0));}}
+  return {tarea:t.tarea,quien:t.quien||"Carlos",area:t.area,tipo:t.tipo,relevancia:t.rel,fecha:t.dia,hora:h,duracion_min:dur,fechaFin:t.diaFin>t.dia?t.diaFin:"",nota:""};
+}
+function fechasDe(b){
+  var multi=b.fechaFin&&b.fechaFin>b.fecha;
+  if(b.hora){var s=utcDe(b.fecha,b.hora),e=new Date(utcDe(multi?b.fechaFin:b.fecha,b.hora).getTime()+Math.max(15,+b.duracion_min||60)*60e3);return {ini:s.toISOString(),fin:e.toISOString()};}
+  return {ini:b.fecha,fin:multi?b.fechaFin:""};
+}
+function guardarEdicion(){
+  var t=buscar(panel.id), e=edicion; if(!t||!e) return;
+  if(!e.tarea||!/^\d{4}-\d{2}-\d{2}$/.test(e.fecha||"")){aviso={err:true,txt:"La tarea necesita un nombre y una fecha."};pintarPanel();return;}
+  var o=valoresEdicion(t);
+  t.tarea=e.tarea; t.quien=e.quien; t.area=e.area; t.tipo=e.tipo; t.rel=e.relevancia;
+  if(e.fecha!==o.fecha||e.hora!==o.hora||+e.duracion_min!==+o.duracion_min||(e.fechaFin||"")!==(o.fechaFin||"")){var f=fechasDe(e);t.ini=f.ini;t.fin=f.fin;t.tiempo=textoTiempo(e.duracion_min);}
+  norm(t); panel.editando=false; edicion=null; aviso={txt:"Cambios guardados."}; guardar(); pintar();
+}
+function borrarTarea(id){
+  var t=buscar(id); if(!t||!puedeEditar()) return;
+  var i=TAREAS.indexOf(t); TAREAS.splice(i,1); panel=null; aviso=null; guardar(); pintar();
+  toast("Tarea borrada.",function(){TAREAS.splice(i,0,t);guardar();pintar();});
+}
+function nuevaTarea(b,extra){
+  var f=fechasDe(b), t={id:"a"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),ini:f.ini,fin:f.fin,quien:b.quien,area:b.area,rel:b.relevancia||"🟠 Importante",listo:false,hito:false,tent:false,tiempo:textoTiempo(b.duracion_min),tarea:b.tarea,nota:b.nota||"",tipo:b.tipo||"",prio:""};
+  if(extra) Object.keys(extra).forEach(function(k){t[k]=extra[k];});
+  TAREAS.push(norm(t)); return t;
+}
+function agregarBorradores(){
+  if(!puedeEditar()) return;
+  var malos=borradores.filter(function(b){return !b.tarea||!/^\d{4}-\d{2}-\d{2}$/.test(b.fecha||"");});
+  if(malos.length){aviso={err:true,txt:"Cada tarea necesita un nombre y una fecha."};pintarPanel();return;}
+  var n=borradores.length; borradores.forEach(function(b){nuevaTarea(b);}); borradores=[]; dictadoTexto="";
+  aviso={txt:"Listo: "+n+(n===1?" tarea agregada.":" tareas agregadas.")}; guardar(); pintar();
+}
+
+/* ---------- sugerencias ---------- */
+var SUGS=[{"id":"s01","titulo":"H1 de founders: pasarlo al mié 28 oct y marcarlo listo","porque":"En el Calendario L1, «H1 · Abren los founders» es el mié 28 oct (ya pasó). Aquí quedó el vie 6 nov.","acciones":[{"mover":"3fe3070f2d4f81dcaf0cc2b1217fb266","dia":"2026-10-28"},{"listo":"3fe3070f2d4f81dcaf0cc2b1217fb266"}]},{"id":"s02","titulo":"VSL de founders: las 3 tareas de Nakari ya no aplican","porque":"El L1 da por terminados el VSL y la preparación de founders (23 al 27 oct) y el formulario ya está abierto. Siguen editar el VSL 1/2 (mar 3), 2/2 (mié 4) y publicarlo no listado (jue 5). Si el VSL ya está publicado, se marcan listas y Nakari recupera unas 5 h y media.","acciones":[{"listo":"3fe3070f2d4f81e28a17f9de442d449a"},{"listo":"3fe3070f2d4f819aa180f8cbb3778ae8"},{"listo":"3fe3070f2d4f81c68834c5370e62f5f0"}]},{"id":"s03","titulo":"Montar las campañas en Meta sin gastar: del lun 2 al sáb 31 oct","porque":"L1: campañas montadas sin gastar el sáb 31, H2 el dom 1 y prenden el lun 2. Montadas el lun 2 no da tiempo de revisarlas.","acciones":[{"mover":"3fe3070f2d4f81179116ff1ff81aeb22","dia":"2026-10-31"}]},{"id":"s04","titulo":"H2 (listo para pautar): del mar 3 al dom 1 nov","porque":"L1: H2 · Listo para pautar es el dom 1 nov.","acciones":[{"mover":"3fe3070f2d4f8107b2efdac4ed3023a7","dia":"2026-11-01"}]},{"id":"s05","titulo":"H3 (prenden los Ads regulares): del mar 3 al lun 2 nov","porque":"L1: H3 · Prenden los anuncios el lun 2 nov; la fase de prueba va del lun 2 al jue 5.","acciones":[{"mover":"3fe3070f2d4f81dbaff2df54aefa67c1","dia":"2026-11-02"}]},{"id":"s06","titulo":"Tarea repetida de Ads en prueba el mié 4","porque":"Hay dos «Definir: Ads regulares en prueba» el mié 4 (10:30 y 11:00), y la de las 11:00 dice «lun 2». Sobra una: se borra la de las 11:00.","acciones":[{"borrar":"3fe3070f2d4f81f9944ef5cde0ffc9db"}]},{"id":"s07","titulo":"H4 · grupos activos: del lun 2 al vie 6 nov","porque":"L1: del lun 2 al jue 5 los grupos se llenan solo con el mensaje anclado; abren (H4) el vie 6.","acciones":[{"mover":"3fe3070f2d4f813b9611da39ec0f61a8","dia":"2026-11-06"}]},{"id":"s08","titulo":"Publicar Forma y Fondo en YouTube: vie 6 nov, 8 am","porque":"L1: sale el vie 6 a las 8 am, junto con H4. Así la edición 2/2 del mar 3 queda antes de publicar (hoy está al revés).","acciones":[{"fechas":"3fe3070f2d4f81648546f32629699f15","ini":"2026-11-06T12:00:00.000Z","fin":"2026-11-06T12:30:00.000Z"}]},{"id":"s09","titulo":"H5 · la señal de founders: del lun 9 al lun 2 nov","porque":"L1: H5 (cuántos founders pagaron) es el lun 2. Ojo: el mismo L1 tiene «Cierra el formulario de founders» el sáb 7, mientras el proceso dice que el formulario corre hasta el lun 2. Hay que decidir cuál vale.","acciones":[{"mover":"3fe3070f2d4f8129bd0fc58d96a1d665","dia":"2026-11-02"}]},{"id":"s10","titulo":"Análisis de Forma y Fondo en los grupos: lun 9, mié 11 y vie 13","porque":"L1: los análisis van lun 9, mié 11 y vie 13. Aquí el 1/3 está el jue 5 (antes de que abran los grupos) y el 2/3 y el 3/3 caen el mismo lun 9.","acciones":[{"mover":"3fe3070f2d4f81cdb635f31e6a76b89e","dia":"2026-11-09"},{"mover":"3fe3070f2d4f81b0b866f384e1b1eb3b","dia":"2026-11-11"},{"mover":"3fe3070f2d4f81c39adbcff0beb0c10e","dia":"2026-11-13"}]},{"id":"s11","titulo":"Encuesta del horario: del jue 5 al lun 9 nov","porque":"L1: la encuesta del horario es el lun 9, con los grupos ya activos.","acciones":[{"mover":"3fe3070f2d4f8160a844fcfa8b91e18a","dia":"2026-11-09"}]},{"id":"s12","titulo":"Cerrar el horario y H6: al vie 13","porque":"L1: H6 · Calentamiento armado y horario cerrado el vie 13. Si la encuesta sale el lun 9, cerrar el horario ese mismo día no deja votar a nadie.","acciones":[{"mover":"3fe3070f2d4f814fb899c7f8e5cddec2","dia":"2026-11-13"},{"mover":"3fe3070f2d4f810288f9ec8706908a33","dia":"2026-11-13"}]},{"id":"s13","titulo":"Video de Valencia: sale el mié 11, no el lun 9","porque":"L1: «Sale el video de Valencia» el mié 11.","acciones":[{"mover":"3fe3070f2d4f81a0b411d8e9f959cd46","dia":"2026-11-11"}]},{"id":"s14","titulo":"Ads regulares en escala: del vie 6 al vie 13","porque":"L1: prueba del lun 2 al jue 5, escala del vie 6 al vie 13 y se apagan el vie 13. Aquí escalar está el mar 10 y apagar el lun 9, antes de escalar.","acciones":[{"mover":"3fe3070f2d4f8101ae6bfc8c6917b646","dia":"2026-11-06"},{"mover":"3fe3070f2d4f811282eacf411e9b192a","dia":"2026-11-13"}]},{"id":"s15","titulo":"Ensayo con cronómetro y H7: del lun 16 al mié 18","porque":"L1: H7 · Skool listo y clase ensayada el mié 18, con el ensayo ese mismo día.","acciones":[{"mover":"3fe3070f2d4f8125abeff6d0b5c4c2a1","dia":"2026-11-18"},{"mover":"3fe3070f2d4f81ec8faadac3c6e83b9c","dia":"2026-11-18"}]},{"id":"s16","titulo":"Shooting de Moi: del lun 2 al jue 5 (tentativo)","porque":"L1: el shooting de Moi está el jue 5 (tentativo). El lun 2 es el día que prenden los Ads.","acciones":[{"mover":"3fe3070f2d4f8144b903c1cbe7e46c75","dia":"2026-11-05"}]},{"id":"s17","titulo":"Falta: definir la estructura de la clase 0 (mar 3)","porque":"L1: «Estructura de la clase 0» es un hito grande el mar 3. Aquí no hay ninguna tarea para eso.","acciones":[{"crear":{"tarea":"📌 Definir: estructura de la clase 0 (clase de venta)","quien":"Carlos","area":"🎤 Clase de venta","tipo":"📌 Decisión","relevancia":"🔴 Indispensable","fecha":"2026-11-03","hora":"14:45","duracion_min":90,"fechaFin":"","nota":"Viene del Calendario L1 (hito del mar 3)."},"extra":{"hito":true}}]},{"id":"s18","titulo":"Diapositivas de la clase de venta: del jue 12 al vie 6","porque":"L1: las diapositivas van el vie 6 y el sáb 7, después de la estructura del mar 3.","acciones":[{"mover":"3fe3070f2d4f8151b386e117d1cd66f8","dia":"2026-11-06"}]},{"id":"s19","titulo":"Falta: Zoom de 1 h con los founders (entre lun 9 y vie 13)","porque":"L1: «Zoom con los founders (1 h)» para afinar la clase 0, tentativo. Lo propongo el jue 12 a las 5 pm.","acciones":[{"crear":{"tarea":"👥 Reunirme con: los founders por Zoom (1 h, afinar la clase 0)","quien":"Carlos","area":"🎟️ Founders","tipo":"👤 Agenda","relevancia":"🟠 Importante","fecha":"2026-11-12","hora":"17:00","duracion_min":60,"fechaFin":"","nota":"Viene del Calendario L1 (tentativo)."},"extra":{"tent":true}}]},{"id":"s20","titulo":"Falta: recordatorio a los founders (jue 19)","porque":"L1: «Recordatorio a los founders» el jue 19, antes de que entren todos a Skool el vie 20.","acciones":[{"crear":{"tarea":"💬 Mensaje: recordatorio a los founders (entran a Skool el vie 20)","quien":"Nakari","area":"🎟️ Founders","tipo":"💬 Comunidad","relevancia":"🟠 Importante","fecha":"2026-11-19","hora":"12:00","duracion_min":15,"fechaFin":"","nota":"Viene del Calendario L1."}}]},{"id":"s21","titulo":"Falta: Ads regulares directo al VSL de frío ($50, vie 20 a dom 22)","porque":"L1: «Ads directo al VSL de frío (50$)» del vie 20 al dom 22, tentativo. Va como tarea de 3 días.","acciones":[{"crear":{"tarea":"✅ Publicar: Ads regulares directo al VSL de frío ($50)","quien":"Carlos","area":"📣 Anuncios","tipo":"✅ Publicar","relevancia":"🟡 Recortable","fecha":"2026-11-20","hora":"","duracion_min":30,"fechaFin":"2026-11-22","nota":"Viene del Calendario L1 (tentativo)."},"extra":{"tent":true}}]},{"id":"s22","titulo":"Montar los grupos de WhatsApp del vie 30: correrlo a las 10 am","porque":"A las 9:30 choca con los Ads regulares 5 y 6 de Nakari (8 a 10 am).","acciones":[{"fechas":"3fe3070f2d4f811cb6e0d653713e14b0","ini":"2026-10-30T14:00:00.000Z","fin":"2026-10-30T15:30:00.000Z"}]},{"id":"s23","titulo":"La plantilla de Notion (descartable) choca con los Ads del jueves","porque":"Nakari tiene los Ads regulares 1 a 4 de 8 a 12 y la plantilla de 8:15 a 10:15. Como es descartable, arrástrala a un día con hueco o bórrala."},{"id":"s24","titulo":"Ads founders: no hay ninguna tarea todavía","porque":"El color nuevo de «Ads founders» sale cuando el título dice «Ads founders». Si hay ads de founders planeados (por ejemplo el anuncio para estados), agrégalos por voz con esas palabras."},{"id":"s25","titulo":"«Responder el filtro de founders (lun 2)» está el lun 9","porque":"El título dice lun 2 pero está el lun 9, y el lun 2 ya tiene su filtro de founders. Parece repetida: revísala y bórrala o muévela."},{"id":"s26","titulo":"8 nov · Empieza aquí: guion el lun 9 en la noche y grabarlo el mié 11 temprano","porque":"Tu meta es que el jue 12 esté grabado todo lo interno. Empieza aquí (bienvenida y cómo sacarle el jugo) está para grabar el jue 12 en la tarde, justo en la meta. El lun y el mar ya están llenos; el mié a las 7 am, antes de la pauta con Moi, todavía llega.","acciones":[{"fechas":"3fe3070f2d4f812cb13af2269f019f22","ini":"2026-11-10T00:00:00.000Z","fin":"2026-11-10T01:30:00.000Z"},{"fechas":"3fe3070f2d4f81d9bffcdc068f3e168f","ini":"2026-11-11T11:00:00.000Z","fin":"2026-11-11T12:30:00.000Z"}]},{"id":"s27","titulo":"8 nov · Testimonio de un founder: al jue 12 y pedírselo a uno de los 10 que pagaron","porque":"Estaba el mié 11 a las 10 am, cuando tienes la pauta con Moi. Ya hay 10 founders pagados: se le puede pedir a uno de ellos además de Oso, VJ Neon o Leylastar.","acciones":[{"fechas":"3fe3070f2d4f81a5964bfb330f08aa71","ini":"2026-11-12T14:00:00.000Z","fin":"2026-11-12T15:00:00.000Z"}]},{"id":"s28","titulo":"8 nov · Desde el análisis 2, a TikTok (@ClipsDitron) y no al grupo","porque":"Lo dijiste: «para no sobrecargar el grupo, ahí voy a estar subiendo dos diarios». Borra los análisis 2/3 y 3/3 en los grupos y crea la subida a TikTok del mar 10 al vie 13, más un solo aviso en el grupo.","acciones":[{"borrar":"3fe3070f2d4f81b0b866f384e1b1eb3b"},{"borrar":"3fe3070f2d4f81c39adbcff0beb0c10e"},{"crear":{"tarea":"✅ Publicar: análisis en TikTok @ClipsDitron (2 al día)","quien":"Nakari","area":"🎥 Contenido","tipo":"✅ Publicar","relevancia":"🟠 Importante","fecha":"2026-11-10","hora":"","duracion_min":30,"fechaFin":"2026-11-13","nota":"Desde el análisis 2. Los clips salen de las tandas del lun 9 y el mar 10."}},{"crear":{"tarea":"💬 Mensaje: aviso en el grupo de que los análisis van a TikTok @ClipsDitron","quien":"Nakari","area":"💬 Grupos","tipo":"💬 Comunidad","relevancia":"🟠 Importante","fecha":"2026-11-10","hora":"12:00","duracion_min":15,"fechaFin":"","nota":"Un solo mensaje, para no sobrecargar el grupo."}}]},{"id":"s29","titulo":"8 nov · El lun 9 salen 3 mensajes al grupo: júntalos","porque":"Cada mensaje saca entre 3 y 5 personas. El lun 9 están el análisis 1 (12:30), la encuesta (12:45) y el «agéndate» de la clase (12:30 de Nakari). Propuesta: que la encuesta lleve el «agéndate» en el mismo mensaje, o que el «agéndate» pase al mar 10 con Forma y Fondo."},{"id":"s30","titulo":"8 nov · H6 (calentamiento armado): al jue 12, junto con tu meta","porque":"H6 está el mié 11, el día de la pauta con Moi. Tu meta de lo interno es el jue 12: se revisan juntos.","acciones":[{"mover":"3fe3070f2d4f810288f9ec8706908a33","dia":"2026-11-12"}]},{"id":"s31","titulo":"8 nov · Apagar los Ads regulares: del lun 9 al jue 12 en la noche","porque":"El plan del 8 nov (bitácora) corre la clase hasta el jue 12 (~$1.980) y deja abierta la opción del vie 13. Hoy la tarea de apagar está el lun 9.","acciones":[{"mover":"3fe3070f2d4f811282eacf411e9b192a","dia":"2026-11-12"}]},{"id":"s32","titulo":"8 nov · «Escalar los 2 o 3 mejores Ads regulares»: ya está","porque":"Lo hiciste el 8 nov con la entrega push y las subidas de Latam y Vnzla Creativos ($225 al día).","acciones":[{"listo":"3fe3070f2d4f8101ae6bfc8c6917b646"}]},{"id":"s33","titulo":"8 nov · «Cerrar la lista de Fundamentos»: ya está","porque":"El jue 5 quedó el guion v3 con 132 términos y tus correcciones.","acciones":[{"listo":"3fe3070f2d4f81079da4c6fa2bd19448"}]},{"id":"s34","titulo":"8 nov · «Filtro de founders, últimas respuestas»: founders cerró el sáb 7","porque":"Quedan 3 o 4 por cobrar, y eso ya está como tarea el lun 9.","acciones":[{"listo":"3fe3070f2d4f8120bedfe6f9839f34aa"}]},{"id":"s35","titulo":"8 nov · Clip de Moi y su mensaje: al jue 12, después de la pauta","porque":"Estaban el vie 6 y el lun 9, antes del shooting. Siguen tentativos y son lo primero que se recorta.","acciones":[{"mover":"3fe3070f2d4f81cf893fd31efd1817f2","dia":"2026-11-12"},{"mover":"3fe3070f2d4f81648d07c3eecb53970d","dia":"2026-11-12"}]},{"id":"s36","titulo":"8 nov · Plantilla de Notion, corte para YouTube (descartable): a la semana del carrito","porque":"Quedó atrasada en el vie 6. Es la segunda en la ruta de recorte: se pasa al lun 23 o se borra.","acciones":[{"mover":"3fe3070f2d4f810d8f65e16511aee8a2","dia":"2026-11-23"}]},{"id":"s37","titulo":"8 nov · Guion de la secuencia del dolor (vie 7): marcarlo listo si ya está","porque":"Los mensajes de la secuencia del 14 al 19 nov dicen que Nakari los programó el vie 6, así que el guion debería estar. Si no, muévelo al lun 9 en la noche.","acciones":[{"listo":"3fe3070f2d4f81faac9fd65c9af19e27"}]},{"id":"s38","titulo":"8 nov · Llevar a la gente de los grupos al canal de YouTube","porque":"Lo dijiste el 8 nov. Propuesta: que los mensajes al grupo que sí salen sean los videos del canal (Forma y Fondo el mar 10 y Valencia el mar 17 si sale), con el link al canal y una pregunta para que respondan. Así cada mensaje suma al canal y pide interacción, en vez de solo avisar."}];
+function aplicarSug(s){
+  if(!puedeEditar()) return;
+  var faltan=[];
+  s.acciones.forEach(function(a){
+    if(a.mover){var t=buscar(a.mover); if(!t){faltan.push(a.mover);return;} var d=difDias(t.dia,a.dia); t.ini=correr(t.ini,d); t.fin=correr(t.fin,d); norm(t);}
+    else if(a.fechas){var t2=buscar(a.fechas); if(!t2){faltan.push(a.fechas);return;} t2.ini=a.ini; t2.fin=a.fin; norm(t2);}
+    else if(a.listo){var t3=buscar(a.listo); if(!t3){faltan.push(a.listo);return;} t3.listo=true;}
+    else if(a.borrar){var t4=buscar(a.borrar); if(t4) TAREAS.splice(TAREAS.indexOf(t4),1);}
+    else if(a.crear){nuevaTarea(a.crear,a.extra);}
+  });
+  S.sugs=S.sugs||{}; S.sugs[s.id]="aplicada"; panel.confirmarSug=null;
+  guardar(); pintar(); toast(faltan.length?"Aplicada, pero no encontré "+faltan.length+" tarea(s).":"Sugerencia aplicada.");
+}
+
+/* ---------- dictado con Claude ---------- */
+function convertir(){
+  var txt=(document.getElementById("dictado")||{}).value||""; dictadoTexto=txt;
+  if(!txt.trim()){aviso={err:true,txt:"Dicta o escribe al menos una tarea."};pintarPanel();return;}
+  var prompt="Convierte este dictado en tareas para el calendario de El Team (Carlos y su asistente Nakari).\n"+
+    "Hoy es "+fechaLarga(hoy)+" de "+hoy.slice(0,4)+" ("+hoy+", hora de Venezuela). Resuelve 'mañana', 'el viernes', 'la semana que viene' a fechas reales.\n"+
+    "Reglas:\n- tarea: corta, empieza con el emoji y el prefijo de este sistema: 📝 Guion: · 🎥 Grabar: · 🎞️ Editar: · 👀🎞️ Montar: · 👀 Revisar: · ✅ Publicar: · 📌 Definir: · 🎨 Diseñar: · 💬 Mensaje: · 💬 Comunidad: · 📲 Escribirle a: · 👥 Reunirme con: · 🙋 Asistir: · 💵🤬 Cobrar: · 💵 Cotizar: · 💎 Terminar: · 🎙 V.O: · 📡 Extraer: · 🔍 Buscar: · 🚨 Recordar: · 🔴 En vivo:\n"+
+    "- Anuncios: nunca escribas 'anuncios', escribe 'Ads founders' si son de la preventa de founders (área 🎟️ Founders) o 'Ads regulares' si son los de captación (área 📣 Anuncios).\n"+
+    "- quien: \"Carlos\" o \"Nakari\". Si habla en primera persona o no lo dice, Carlos.\n"+
+    "- area: exactamente una de "+JSON.stringify(VALORES_AREA)+"\n- tipo: exactamente uno de "+JSON.stringify(TIPOS)+"\n"+
+    "- relevancia: exactamente una de "+JSON.stringify(REL)+". Por defecto \"🟠 Importante\"; si dice prioridad, urgente o indispensable, \"🔴 Indispensable\".\n"+
+    "- fecha: YYYY-MM-DD. fecha_fin: YYYY-MM-DD solo si la tarea dura varios días seguidos, si no null. hora: HH:MM en 24 h o null. duracion_min: número (60 si no lo dice).\n"+
+    "- nota: un detalle útil del dictado, o \"\".\n"+
+    "Responde solo con un JSON array de objetos {tarea, quien, area, tipo, relevancia, fecha, fecha_fin, hora, duracion_min, nota}.\n\nDictado:\n"+txt.slice(0,6000);
+  ocupado="convirtiendo"; aviso=null; pintarPanel();
+  sample.json(prompt,{cache:false}).then(function(lista){
+    ocupado=false;
+    if(!Array.isArray(lista)||!lista.length){aviso={err:true,txt:"No encontré tareas en el dictado. Prueba diciendo qué, quién y cuándo."};pintarPanel();return;}
+    lista.forEach(function(x){
+      if(!x||typeof x!=="object") return; var fd=/^\d{4}-\d{2}-\d{2}$/;
+      borradores.push({tarea:emojis(String(x.tarea||"").slice(0,200)),quien:x.quien==="Nakari"?"Nakari":"Carlos",area:VALORES_AREA.indexOf(x.area)>=0?x.area:"👥 Equipo",tipo:TIPOS.indexOf(x.tipo)>=0?x.tipo:"",relevancia:REL.indexOf(x.relevancia)>=0?x.relevancia:"🟠 Importante",fecha:fd.test(String(x.fecha||""))?x.fecha:hoy,fechaFin:fd.test(String(x.fecha_fin||""))?x.fecha_fin:"",hora:/^\d{2}:\d{2}$/.test(String(x.hora||""))?x.hora:"",duracion_min:+x.duracion_min>0?Math.round(+x.duracion_min):60,nota:String(x.nota||"").slice(0,500)});
+    });
+    pintarPanel();
+  }).catch(function(e){
+    ocupado=false; var c=e&&e.code;
+    aviso={err:true,txt:c==="not_granted"||c==="sampling_disabled"?"Esta página no tiene permiso para usar Claude, así que no puede convertir el dictado.":c==="rate_limited"?"Demasiadas consultas seguidas. Espera un momento y vuelve a intentar.":"No se pudo convertir el dictado. Vuelve a intentar."};
+    pintarPanel();
+  });
+}
+
+/* ---------- eventos ---------- */
+var ultimoChip={k:null,t:0};
+function tocarArea(k){
+  var ahora=Date.now();
+  if(ultimoChip.k===k&&ahora-ultimoChip.t<400){
+    ultimoChip={k:null,t:0}; ocultas[k]=!ocultas[k];
+    var yaSolo=AREAS.every(function(a){return a[0]===k?!ocultas[a[0]]:!!ocultas[a[0]];});
+    ocultas={}; if(!yaSolo) AREAS.forEach(function(a){if(a[0]!==k) ocultas[a[0]]=true;});
+  } else { ultimoChip={k:k,t:ahora}; ocultas[k]=!ocultas[k]; }
+  guardarFiltros(); pintar();
+}
+document.addEventListener("click",function(ev){
+  if(suprimirClick){ev.preventDefault();ev.stopPropagation();return;}
+  var t=ev.target.closest("button,[data-dia]");
+  /* tocar fuera (calendario vacío, fondo) sin marcar nada cierra el panel de la derecha */
+  if(!t){if(panel&&!ev.target.closest("#panel,.toast,input,textarea,select,a")){panel=null;aviso=null;pintar();}return;}
+  var d=t.dataset;
+  if(t.id==="menos"){cambiarZoom(-0.1);return;}
+  if(t.id==="mas"){cambiarZoom(0.1);return;}
+  if(t.id==="hoy"){if(vistaModo==="dia"){centro=null;panel=null;pintar();window.scrollTo(0,0);return;}if(vistaModo==="tablero"){tabCentro=null;if(tabAgrupar==="cat"&&tabDia)tabDia=hoyVE();guardarFiltros();pintar();return;}irAHoy(true);return;}
+  if(d.modo){vistaModo=d.modo;guardarFiltros();pintar();if(vistaModo==="calendario")aplicarZoom();window.scrollTo(0,0);return;}
+  if(d.estado){estadoVer=d.estado;guardarFiltros();pintar();return;}
+  if(d.tabAgrupar){tabAgrupar=d.tabAgrupar;guardarFiltros();pintar();return;}
+  if(d.tabCorrer){tabCentro=sumarDias(centroTab(),+d.tabCorrer);pintar();return;}
+  if(d.tabDia!==undefined){if(tabAgrupar==="cat"){tabDia=tabDia===d.tabDia?"":d.tabDia;guardarFiltros();pintar();}return;}
+  if(d.check){var tc=buscar(d.check);if(!tc||!puedeEditar())return;tc.listo=!tc.listo;guardar();pintar();toast(tc.listo?"Lista ✓":"Vuelve a por hacer.",function(){tc.listo=!tc.listo;guardar();pintar();});return;}
+  if(t.id==="ver-sugs"){aviso=null;panel={tipo:"sugs"};pintar();return;}
+  if(t.id==="abrir-dictado"){aviso=null;panel={tipo:"dictado"};pintar();var ta=document.getElementById("dictado");if(ta)ta.focus();return;}
+  if(d.verSemana){diasVer.semana=!diasVer.semana;guardarFiltros();pintar();return;}
+  if(d.ver){diasVer.semana=false;diasVer[d.ver]=!diasVer[d.ver];guardarFiltros();pintar();return;}
+  if(d.correr){centro=sumarDias(centroDia(),+d.correr);if(panel&&panel.tipo==="tarea")panel=null;pintar();return;}
+  if(d.persona){persona=d.persona;guardarFiltros();pintar();return;}
+  if(d.area){tocarArea(d.area);return;}
+  if(t.hasAttribute("data-listas")){listasModo={ambas:"ocultar",ocultar:"solo",solo:"ambas"}[listasModo];guardarFiltros();pintar();toast({ambas:"Se ven todas: pendientes y listas.",ocultar:"Listas ocultas.",solo:"Solo las listas."}[listasModo]);return;}
+  if(t.hasAttribute("data-antes")){var h0=document.documentElement.scrollHeight;desde=sumarDias(desde,-28);pintarVista();window.scrollBy(0,document.documentElement.scrollHeight-h0);return;}
+  if(t.hasAttribute("data-despues")){hasta=sumarDias(hasta,28);pintarVista();return;}
+  if(d.id){aviso=null;panel={tipo:"tarea",id:d.id};if(d.dd)panel.dia=d.dd;pintar();return;}
+  if(d.diaDe){panel={tipo:"dia",dia:d.diaDe};pintar();return;}
+  if(t.hasAttribute("data-cerrar")){panel=null;aviso=null;pintar();return;}
+  var tp=panel&&panel.tipo==="tarea"?buscar(panel.id):null;
+  if(d.quien&&tp){if(tp.quien===d.quien)return;if(!puedeEditar())return;var q0=tp.quien;tp.quien=d.quien;if(tp.prio)TAREAS.forEach(function(o){if(o!==tp&&o.prio===tp.prio&&o.quien===tp.quien&&o.dia===tp.dia)o.prio="";});guardar();pintar();toast("Ahora es de "+tp.quien+".",function(){tp.quien=q0;guardar();pintar();});return;}
+  if(d.prio!=null&&tp){ponerPrio(tp,d.prio);return;}
+  if(t.hasAttribute("data-listo")&&tp){if(!puedeEditar())return;tp.listo=!tp.listo;guardar();pintar();return;}
+  if(t.hasAttribute("data-editar")&&tp){edicion=valoresEdicion(tp);panel.editando=true;aviso=null;pintarPanel();return;}
+  if(t.hasAttribute("data-cancelar-ed")){panel.editando=false;edicion=null;aviso=null;pintarPanel();return;}
+  if(t.hasAttribute("data-guardar-ed")){if(puedeEditar())guardarEdicion();return;}
+  if(t.hasAttribute("data-borrar")){panel.borrar=1;pintarPanel();return;}
+  if(t.hasAttribute("data-borrar-si")){panel.borrar=2;pintarPanel();return;}
+  if(t.hasAttribute("data-borrar-no")){panel.borrar=0;pintarPanel();return;}
+  if(t.hasAttribute("data-borrar-final")&&tp){borrarTarea(tp.id);return;}
+  if(t.hasAttribute("data-convertir")){convertir();return;}
+  if(t.hasAttribute("data-guardar")){agregarBorradores();return;}
+  if(d.quitar!=null&&d.quitar!==""){borradores.splice(+d.quitar,1);pintarPanel();return;}
+  if(d.sugSi){var s=SUGS.filter(function(x){return x.id===d.sugSi;})[0];if(!s)return;var borra=s.acciones.some(function(a){return a.borrar;});if(borra&&panel.confirmarSug!==s.id){panel.confirmarSug=s.id;pintarPanel();return;}aplicarSug(s);return;}
+  if(d.sugNo){S.sugs=S.sugs||{};S.sugs[d.sugNo]="descartada";guardar();pintar();return;}
+  if(d.sugVista){S.sugs=S.sugs||{};S.sugs[d.sugVista]="vista";guardar();pintar();return;}
+  if(d.dia&&t.closest("#vista")){if(panel){panel=null;aviso=null;pintar();return;}panel={tipo:"dia",dia:d.dia};pintar();return;}
+});
+document.addEventListener("input",function(ev){
+  var el=ev.target;
+  if(el.id==="dictado"){dictadoTexto=el.value;return;}
+  if(el.dataset&&el.dataset.b!=null){var b=el.dataset.b==="e"?edicion:borradores[+el.dataset.b];if(b){b[el.dataset.campo]=el.value;if(el.dataset.campo==="area"||el.dataset.campo==="tarea") el.closest(".borrador").style.setProperty("--c",colorCat(catDe({tarea:b.tarea,area:b.area})));}}
+});
+document.addEventListener("keydown",function(ev){
+  var tag=(ev.target.tagName||"").toLowerCase();
+  if(tag==="input"||tag==="textarea"||tag==="select"||ev.target.isContentEditable||ev.metaKey||ev.ctrlKey) return;
+  if(ev.key==="Escape"&&panel){panel=null;aviso=null;pintar();return;}
+  if(!panel||panel.tipo!=="tarea") return;
+  var t=buscar(panel.id); if(!t) return;
+  if(/^[0-3]$/.test(ev.key)){ev.preventDefault();ponerPrio(t,ev.key==="0"?"":"P"+ev.key);return;}
+  if(ev.key==="e"||ev.key==="E"){ev.preventDefault();edicion=valoresEdicion(t);panel.editando=true;pintarPanel();return;}
+  if(ev.key==="l"||ev.key==="L"){ev.preventDefault();if(!puedeEditar())return;t.listo=!t.listo;guardar();pintar();return;}
+  if(ev.key==="Delete"||ev.key==="Backspace"){ev.preventDefault();panel.borrar=Math.min(2,(panel.borrar||0)+1);pintarPanel();return;}
+  if(ev.altKey&&(ev.key==="ArrowLeft"||ev.key==="ArrowRight")){ev.preventDefault();moverTarea(t.id,sumarDias(t.dia,ev.key==="ArrowLeft"?-1:1));}
+});
+/* zoom de lupa: el calendario se agranda como una foto (no se reacomoda) y se recorre arrastrando; el panel queda fijo */
+var ZMIN=0.8, ZMAX=3;
+function anchoBase(){var pr=document.getElementById("prios");return pr?pr.clientWidth:document.documentElement.clientWidth-32;}
+function aplicarZoom(){
+  var v=document.getElementById("vista"), m=document.getElementById("marco"); if(!v||!m) return;
+  var w=anchoBase(); v.style.width=w+"px"; v.style.transform=zoom===1?"":"scale("+zoom+")";
+  m.style.width=(w*zoom)+"px"; m.style.height=(v.offsetHeight*zoom)+"px";
+}
+function zoomEn(z,cx,cy){
+  z=Math.min(ZMAX,Math.max(ZMIN,Math.round(z*100)/100)); var m=document.getElementById("marco"), r=m.getBoundingClientRect();
+  var ux=(cx-r.left)/zoom, uy=(cy-r.top)/zoom, ox=r.left+window.scrollX, oy=r.top+window.scrollY;
+  zoom=z; aplicarZoom(); window.scrollTo(ux*zoom+ox-cx, uy*zoom+oy-cy);
+}
+function cambiarZoom(dz){zoomEn(zoom+dz,window.innerWidth/2,window.innerHeight/2);guardarFiltros();}
+window.addEventListener("resize",aplicarZoom);
+function irAHoy(suave){
+  hoy=hoyVE(); if(hoy<desde) desde=domingoDe(hoy);
+  if(suave){panel={tipo:"dia",dia:hoy};pintar();}
+  var el=document.querySelector('#vista [data-dia="'+hoy+'"]');
+  if(el){var y=el.getBoundingClientRect().top+window.scrollY-70;window.scrollTo({top:Math.max(0,y),behavior:suave?"smooth":"auto"});}
+}
+
+/* ---------- arrastrar (mantén presionada la tarea en el iPad, o arrástrala con el mouse en Calendario, Tablero o Día) ---------- */
+function destinoEn(x,y){
+  var d=document.elementFromPoint(x,y); if(!d) return null;
+  return d.closest("[data-drop-dia],[data-drop-col],#vista [data-dia]");
+}
+function tarjetaSobreEn(x,y){
+  var d=document.elementFromPoint(x,y); if(!d) return null;
+  var c=d.closest(".tc[data-id],.dr[data-id]");
+  return c&&(!arr||c.dataset.id!==arr.id)?c:null;
+}
+function marcarDestino(cel,tar){
+  Array.prototype.forEach.call(document.querySelectorAll(".destino"),function(v){if(v!==cel)v.classList.remove("destino");});
+  if(cel)cel.classList.add("destino");
+  Array.prototype.forEach.call(document.querySelectorAll(".sobre"),function(v){if(v!==tar)v.classList.remove("sobre");});
+  if(tar)tar.classList.add("sobre");
+}
+function iniciarArrastre(x,y){
+  if(!arr||pinch) {arr=null;return;} arr.activo=true;
+  var z=arr.z||1, r=arr.el.getBoundingClientRect(), f=arr.el.cloneNode(true);
+  f.classList.add("fantasma"); f.style.width=(r.width/z)+"px"; f.style.zoom=z; document.body.appendChild(f);
+  arr.f=f; arr.dx=(x-r.left)/z; arr.dy=(y-r.top)/z; arr.el.classList.add("arrastrando");
+  if(navigator.vibrate) navigator.vibrate(12);
+  moverFantasma(x,y);
+  arr.scroll=setInterval(function(){
+    if(!arr) return;
+    if(arr.vy) window.scrollBy(0,arr.vy);
+    var hCont=document.querySelector(vistaModo==="tablero"?".tablero":vistaModo==="dia"?".dcols":"");
+    if(hCont&&arr.vx) hCont.scrollLeft+=arr.vx;
+    if(arr.vy||arr.vx) marcarDestino(destinoEn(arr.x,arr.y),tarjetaSobreEn(arr.x,arr.y));
+  },16);
+}
+function moverFantasma(x,y){
+  var z=arr.z||1;
+  arr.x=x; arr.y=y; arr.f.style.left=(x/z-arr.dx)+"px"; arr.f.style.top=(y/z-arr.dy)+"px";
+  arr.vy=y<70?-10:(y>window.innerHeight-70?10:0);
+  var hCont=document.querySelector(vistaModo==="tablero"?".tablero":vistaModo==="dia"?".dcols":"");
+  if(hCont){
+    var cr=hCont.getBoundingClientRect();
+    arr.vx=x<cr.left+80?-14:(x>cr.right-80?14:0);
+  } else arr.vx=0;
+  marcarDestino(destinoEn(x,y),tarjetaSobreEn(x,y));
+}
+function terminarArrastre(x,y,soltar){
+  var a=arr; arr=null; if(!a) return; clearTimeout(a.timer); if(!a.activo) return;
+  clearInterval(a.scroll); a.f.remove(); a.el.classList.remove("arrastrando");
+  var cel=soltar?destinoEn(x,y):null, tar=soltar?tarjetaSobreEn(x,y):null;
+  marcarDestino(null,null);
+  suprimirClick=true; setTimeout(function(){suprimirClick=false;},350);
+  if(!cel) return;
+  var t=buscar(a.id); if(!t) return;
+  var diaDest=cel.dataset.dropDia||cel.dataset.dia;
+  var colDest=cel.dataset.dropCol;
+  if(diaDest){
+    var nuevoDia=a.diaChip&&t.dia?sumarDias(t.dia,difDias(a.diaChip,diaDest)):diaDest;
+    if(t.dia!==nuevoDia){
+      if(tar) reordenarEnContenedor(a.id,tar.dataset.id,cel,true);
+      moverTarea(a.id,nuevoDia);
+      return;
+    }
+    if(tar) reordenarEnContenedor(a.id,tar.dataset.id,cel,false);
+  } else if(colDest){
+    var actualCol=colDe(t)[0];
+    if(actualCol!==colDest){
+      if(tar) reordenarEnContenedor(a.id,tar.dataset.id,cel,true);
+      cambiarColumnaTarea(a.id,colDest);
+      return;
+    }
+    if(tar) reordenarEnContenedor(a.id,tar.dataset.id,cel,false);
+  }
+}
+document.addEventListener("pointerdown",function(ev){
+  if(pinch||ev.isPrimary===false||ev.button>0) return;
+  if(ev.target.closest(".chk")) return;
+  var el=ev.target.closest("#vista .t[data-id], #prios .t[data-id], #panel .lista .t[data-id], #tablero .tc[data-id], #diavista .dr[data-id]");
+  if(!el) return;
+  var celda=el.closest("[data-drop-dia],[data-dia]"), t=buscar(el.dataset.id);
+  var diaChip=celda?(celda.dataset.dropDia||celda.dataset.dia):(el.dataset.dia||(t&&t.dia)||null);
+  var enVista=!!el.closest("#vista");
+  arr={id:el.dataset.id,el:el,diaChip:diaChip,z:enVista?zoom:1,x0:ev.clientX,y0:ev.clientY,activo:false,raton:ev.pointerType==="mouse"};
+  if(!arr.raton) arr.timer=setTimeout(function(){if(arr)iniciarArrastre(arr.x0,arr.y0);},380);
+});
+document.addEventListener("pointermove",function(ev){
+  if(!arr) return;
+  if(!arr.activo){
+    var mov=Math.hypot(ev.clientX-arr.x0,ev.clientY-arr.y0);
+    if(arr.raton){if(mov>6) iniciarArrastre(ev.clientX,ev.clientY);}
+    else if(mov>10){clearTimeout(arr.timer);arr=null;}
+    return;
+  }
+  ev.preventDefault(); moverFantasma(ev.clientX,ev.clientY);
+});
+document.addEventListener("pointerup",function(ev){terminarArrastre(ev.clientX,ev.clientY,true);});
+document.addEventListener("pointercancel",function(){terminarArrastre(0,0,false);});
+document.addEventListener("contextmenu",function(ev){if(ev.target.closest(".t,.tc,.dr")) ev.preventDefault();});
+
+/* ---------- scroll horizontal con la rueda horizontal del ratón (o Shift + rueda) en Tablero y Día ---------- */
+document.addEventListener("wheel",function(ev){
+  var cont=ev.target.closest(".tablero,.dcols");
+  if(!cont) return;
+  var dx=ev.deltaX, dy=ev.deltaY;
+  if(ev.shiftKey&&dx===0&&dy!==0){dx=dy;dy=0;}
+  if(dx!==0){
+    var factor=ev.deltaMode===1?36:ev.deltaMode===2?cont.clientWidth:1;
+    cont.scrollLeft+=dx*factor;
+    if(Math.abs(dx)>=Math.abs(dy)) ev.preventDefault();
+  }
+},{passive:false});
+
+/* ---------- zoom con dos dedos: te acercas a los días; el panel no se mueve ---------- */
+function distTouch(a,b){return Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);}
+function centro(a,b){return [(a.clientX+b.clientX)/2,(a.clientY+b.clientY)/2];}
+document.addEventListener("touchstart",function(ev){if(ev.touches.length===2){if(arr){clearTimeout(arr.timer);terminarArrastre(0,0,false);arr=null;}var c0=centro(ev.touches[0],ev.touches[1]);pinch={d0:distTouch(ev.touches[0],ev.touches[1]),z0:zoom,cx:c0[0],cy:c0[1]};}},{passive:true});
+document.addEventListener("touchmove",function(ev){
+  if(arr&&arr.activo){ev.preventDefault();return;}
+  if(pinch&&ev.touches.length===2){
+    ev.preventDefault();
+    var c1=centro(ev.touches[0],ev.touches[1]);
+    window.scrollBy(pinch.cx-c1[0],pinch.cy-c1[1]); pinch.cx=c1[0]; pinch.cy=c1[1];
+    zoomEn(pinch.z0*distTouch(ev.touches[0],ev.touches[1])/pinch.d0,c1[0],c1[1]);
+  }
+},{passive:false});
+document.addEventListener("touchend",function(ev){if(pinch&&ev.touches.length<2){pinch=null;guardarFiltros();}});
+["gesturestart","gesturechange"].forEach(function(n){document.addEventListener(n,function(e){e.preventDefault();},{passive:false});});
+
+/* ---------- panel anclado a lo que se ve (cuando la página se abre sola) ---------- */
+function anclarPanel(){
+  var el=document.getElementById("panel"), vv=window.visualViewport; if(!el) return;
+  if(!vv||el.hidden||Math.abs(vv.scale-1)<0.02){["transform","left","top","right","bottom","width","height"].forEach(function(k){el.style[k]="";});return;}
+  var s=vv.scale, m=10, w=Math.min(340,vv.width*s-2*m);
+  el.style.left="0"; el.style.top="0"; el.style.right="auto"; el.style.bottom="auto"; el.style.width=w+"px"; el.style.height=(vv.height*s-2*m)+"px";
+  el.style.transform="translate("+(vv.offsetLeft+vv.width-(w+m)/s)+"px,"+(vv.offsetTop+m/s)+"px) scale("+(1/s)+")";
+}
+if(window.visualViewport){window.visualViewport.addEventListener("resize",anclarPanel);window.visualViewport.addEventListener("scroll",anclarPanel);}
+
+/* ---------- arranque ---------- */
+document.getElementById("raiz").innerHTML=ESQUELETO;
+window.matchMedia("(max-width: 700px)").addEventListener("change",pintarVista);
+var vista0=leerVista();
+if(vista0){
+  if(vista0.desde) desde=vista0.desde; if(vista0.hasta) hasta=vista0.hasta;
+  var pv=vista0.panel; if(pv&&(pv.tipo!=="tarea"||buscar(pv.id))) panel=pv;
+}
+pintar(); pintarEstado("Cargando…");
+requestAnimationFrame(function(){
+  if(!vista0){irAHoy(false);return;}
+  window.scrollTo(vista0.x||0,vista0.y||0);
+  var pe=document.getElementById("panel"); if(pe&&vista0.ps) pe.scrollTop=vista0.ps;
+  if(vista0.toast){var t0=vista0.toast;ultimoToast="";toast(t0);}
+});
+var c=window.claude;
+var usar=function(n){return c&&typeof c.use==="function"?c.use(n):Promise.resolve(null);};
+usar("sample").then(function(s){sample=s;if(panel&&panel.tipo==="dictado")pintarPanel();}).catch(function(){});
+usar("artifact").then(function(a){
+  if(a){artifact=a;modo="publicada";pintarEstado("Los cambios se guardan en este calendario");return;}
+  modo="local";
+  try{var b=localStorage.getItem("tareas-team-estado");if(b){S=JSON.parse(b);if(S.ordenM)ordenM=S.ordenM;cargarDeEstado();pintar();}}catch(e){}
+  pintarEstado(ghKey?"☁️ Conectando con la nube…":"Vista local: cargando estado…");
+  cargarNube(false);
+}).catch(function(){modo="local";cargarNube(false);});
+document.addEventListener("visibilitychange",function(){if(!document.hidden&&modo==="local")cargarNube(true);});
+window.addEventListener("focus",function(){if(modo==="local")cargarNube(true);});
+})();
+</script>
+</body></html>
